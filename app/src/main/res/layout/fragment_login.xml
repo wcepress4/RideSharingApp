@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".LoginFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center"
+            android:paddingTop="64dp"
+            android:paddingBottom="64dp">
+
+            <!-- App Title -->
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RideSharingApp"
+                android:textColor="#000000"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Subheading -->
+            <TextView
+                android:id="@+id/loginHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Email Input -->
+            <EditText
+                android:id="@+id/emailInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:textColor="#000000"
+                android:textColorHint="#888888"
+                android:backgroundTint="#000000"
+                android:layout_marginBottom="16dp"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                />
+
+            <!-- Password Input -->
+            <EditText
+                android:id="@+id/passwordInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textColor="#000000"
+                android:textColorHint="#888888"
+                android:backgroundTint="#000000"
+                android:layout_marginBottom="24dp"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                />
+
+            <!-- Login Button -->
+            <Button
+                android:id="@+id/loginButton"
+                android:layout_width="224dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#000000"
+                android:text="Login"
+                android:textColor="#FFFFFF" />
+
+            <!-- Register Redirect -->
+            <TextView
+                android:id="@+id/switchToRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:text="Don't have an account? Register"
+                android:textColor="#D32F2F"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
