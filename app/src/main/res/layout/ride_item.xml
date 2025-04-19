@@ -32,10 +32,21 @@
             android:layout_height="wrap_content"
             android:text="To" />
 
-        <TextView android:id="@+id/riderName"
+        <TextView
+            android:id="@+id/riderIdTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rider" />
+            android:text="Rider ID:"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/driverIdTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Driver ID:"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
 
         <Button
             android:id="@+id/acceptButton"
