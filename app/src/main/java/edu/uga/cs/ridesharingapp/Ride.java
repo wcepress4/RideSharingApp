@@ -5,20 +5,24 @@ public class Ride {
     private String time;
     private String fromLocation;
     private String toLocation;
-    private String riderName;
-    private String userId;
+    private String riderId;
+    private String driverId;
+    private boolean accepted;
+    private boolean completed;
 
     public Ride() {
         // Default constructor required for Firebase
     }
 
-    public Ride(String date, String time, String fromLocation, String toLocation, String riderName, String userId) {
+    public Ride(String date, String time, String fromLocation, String toLocation, String riderId, String driverId, boolean accepted, boolean completed) {
         this.date = date;
         this.time = time;
         this.fromLocation = fromLocation;
         this.toLocation = toLocation;
-        this.riderName = riderName;
-        this.userId = userId;
+        this.riderId = riderId;
+        this.driverId = driverId;
+        this.accepted = accepted;
+        this.completed = completed;
     }
 
     public String getDate() {
@@ -37,11 +41,15 @@ public class Ride {
         return toLocation;
     }
 
-    public String getRiderName() {
-        return riderName;
+    public String getRiderId() {
+        return riderId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getDriverId() {
+        return driverId;
     }
+
+    public boolean getAccepted() { return accepted; }
+
+    public boolean getCompleted() { return completed; }
 }
