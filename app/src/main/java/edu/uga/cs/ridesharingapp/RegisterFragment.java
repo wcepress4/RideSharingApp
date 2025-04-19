@@ -1,5 +1,6 @@
 package edu.uga.cs.ridesharingapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,10 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 public class RegisterFragment extends Fragment {
-    private FirebaseAuth mAuth;
 
     public RegisterFragment() {}
 
@@ -25,11 +23,9 @@ public class RegisterFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        mAuth = FirebaseAuth.getInstance();
-
         EditText emailInput = view.findViewById(R.id.emailInput);
         EditText passwordInput = view.findViewById(R.id.passwordInput);
-        EditText retypePasswordInput = view.findViewById(R.id.retypePasswordInput); // new field
+        EditText retypePasswordInput = view.findViewById(R.id.retypePasswordInput);
         Button registerButton = view.findViewById(R.id.registerButton);
         TextView switchToLogin = view.findViewById(R.id.switchToLogin);
 
@@ -48,16 +44,8 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Account created!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getActivity(), MainActivity.class));
-                            getActivity().finish();
-                        } else {
-                            Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+            // Execute async registration task
+            new RegisterUserTask(getContext()).execute(email, password);
         });
 
         switchToLogin.setOnClickListener(v -> {
