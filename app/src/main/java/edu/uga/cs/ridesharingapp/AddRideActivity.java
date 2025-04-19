@@ -71,6 +71,7 @@ public class AddRideActivity extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Ride added!", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);
             finish();
         });
     }

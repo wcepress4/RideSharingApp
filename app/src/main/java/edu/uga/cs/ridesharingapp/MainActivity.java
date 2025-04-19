@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +17,8 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int ADD_RIDE_REQUEST_CODE = 1001;
 
     private FirebaseAuth mAuth;
     private TabLayout tabLayout;
@@ -62,11 +65,23 @@ public class MainActivity extends AppCompatActivity {
 
         homeButton.setOnClickListener(v -> recyclerView.scrollToPosition(0));
 
-        addRideButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AddRideActivity.class)));
+        addRideButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddRideActivity.class);
+            startActivityForResult(intent, ADD_RIDE_REQUEST_CODE);  // ✅ launch with request code
+        });
 
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
         loadRideDetails(); // Initial load
+    }
+
+    // ✅ Refresh ride list when coming back from AddRideActivity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ADD_RIDE_REQUEST_CODE && resultCode == RESULT_OK) {
+            loadRideDetails();
+        }
     }
 
     private void loadRideDetails() {
@@ -90,16 +105,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayRides(List<Ride> rideList) {
-        rideAdapter = new RideAdapter(rideList, new RideAdapter.OnAcceptClickListener() {
-            @Override
-            public void onAcceptClick(Ride ride) {
-                Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show();
+        rideAdapter = new RideAdapter(rideList, ride -> {
+            Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show();
 
-                // TODO: Add Firebase logic to mark ride as accepted, e.g.:
-                // ride.setAccepted(true);
-                // ride.setDriverId(currentUser.getUid()); // if current user is driver
-                // Update in Firebase
-            }
+            // TODO: Add Firebase logic to mark ride as accepted, e.g.:
+            // ride.setAccepted(true);
+            // ride.setDriverId(currentUser.getUid()); // if current user is driver
+            // Update in Firebase
         });
         recyclerView.setAdapter(rideAdapter);
     }
