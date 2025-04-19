@@ -93,8 +93,12 @@ public class MainActivity extends AppCompatActivity {
         rideAdapter = new RideAdapter(rideList, new RideAdapter.OnAcceptClickListener() {
             @Override
             public void onAcceptClick(Ride ride) {
-                Toast.makeText(MainActivity.this, "Accepted ride: " + ride.getRiderName(), Toast.LENGTH_SHORT).show();
-                // TODO: Add Firebase logic to confirm/accept the ride
+                Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show();
+
+                // TODO: Add Firebase logic to mark ride as accepted, e.g.:
+                // ride.setAccepted(true);
+                // ride.setDriverId(currentUser.getUid()); // if current user is driver
+                // Update in Firebase
             }
         });
         recyclerView.setAdapter(rideAdapter);
