@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         homeButton.setOnClickListener(v -> recyclerView.scrollToPosition(0));
 
-        addRideButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RideActivity.class)));
+        addRideButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AddRideActivity.class)));
 
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
