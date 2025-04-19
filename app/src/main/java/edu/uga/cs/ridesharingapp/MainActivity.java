@@ -5,21 +5,14 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.android.material.tabs.TabLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private RecyclerView recyclerView;
     private RideAdapter rideAdapter;
-    private String currentTab = "Offers";  // Default tab is "Offers"
+    private String currentTab = "Ride Offers";  // Default tab
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +33,15 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(this, "Please login first.", Toast.LENGTH_SHORT).show();
-            // Redirect to LoginActivity
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
             return;
         }
 
-        // Initialize TabLayout and RecyclerView
         tabLayout = findViewById(R.id.tabLayout);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Set up tab layout switching
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -64,67 +56,47 @@ public class MainActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // ✅ Bottom Navigation Click Listeners
         ImageView homeButton = findViewById(R.id.homeButton);
         ImageView addRideButton = findViewById(R.id.addRideButton);
         ImageView profileButton = findViewById(R.id.profileButton);
 
-        homeButton.setOnClickListener(v -> {
-            recyclerView.scrollToPosition(0);  // Optional: scroll to top
-        });
+        homeButton.setOnClickListener(v -> recyclerView.scrollToPosition(0));
 
-        addRideButton.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, RideActivity.class));
-        });
+        addRideButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RideActivity.class)));
 
-        profileButton.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-        });
+        profileButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
-        // Load default ride list
-        loadRideDetails();
+        loadRideDetails(); // Initial load
     }
 
-
     private void loadRideDetails() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ridesRef;
-
-        // Select the database reference based on the selected tab
         if (currentTab.equals("Ride Offers")) {
-            ridesRef = database.getReference("rideOffers");
-        } else {
-            ridesRef = database.getReference("rideRequests");
-        }
-
-        // Fetch data from Firebase
-        ridesRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Ride> rideList = new ArrayList<>();
-
-                // Loop through each snapshot and add rides to the list
-                for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
-                    Ride ride = rideSnapshot.getValue(Ride.class);
-                    rideList.add(ride);
+            RetrieveRideOffersTask offersTask = new RetrieveRideOffersTask(new RetrieveRideOffersTask.RideDataCallback() {
+                @Override
+                public void onRidesRetrieved(List<Ride> rides) {
+                    displayRides(rides);
                 }
+            });
+            offersTask.fetchData();
+        } else {
+            RetrieveRideRequestsTask requestsTask = new RetrieveRideRequestsTask(new RetrieveRideRequestsTask.RideDataCallback() {
+                @Override
+                public void onRidesRetrieved(List<Ride> rides) {
+                    displayRides(rides);
+                }
+            });
+            requestsTask.fetchData();
+        }
+    }
 
-                // Pass the list to the adapter and set it on the RecyclerView
-                rideAdapter = new RideAdapter(rideList, new RideAdapter.OnAcceptClickListener() {
-                    @Override
-                    public void onAcceptClick(Ride ride) {
-                        // Handle the "Accept" action here (e.g., updating Firebase, showing confirmation)
-                        Toast.makeText(MainActivity.this, "Accepted ride: " + ride.getRiderName(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-                recyclerView.setAdapter(rideAdapter);
-            }
-
+    private void displayRides(List<Ride> rideList) {
+        rideAdapter = new RideAdapter(rideList, new RideAdapter.OnAcceptClickListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Show error message if the data fetching is cancelled or failed
-                Toast.makeText(MainActivity.this, "Failed to load ride details", Toast.LENGTH_SHORT).show();
+            public void onAcceptClick(Ride ride) {
+                Toast.makeText(MainActivity.this, "Accepted ride: " + ride.getRiderName(), Toast.LENGTH_SHORT).show();
+                // TODO: Add Firebase logic to confirm/accept the ride
             }
         });
+        recyclerView.setAdapter(rideAdapter);
     }
 }
