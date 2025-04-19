@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <EditText
+        android:id="@+id/editTextFrom"
+        android:hint="From Location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/editTextTo"
+        android:hint="To Location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/editTextDate"
+        android:hint="Date (e.g., April 11 2025)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/editTextTime"
+        android:hint="Time (e.g., 12:00 PM)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroupType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <RadioButton
+            android:id="@+id/radioOffer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Offer"/>
+
+        <RadioButton
+            android:id="@+id/radioRequest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Request"/>
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/buttonSubmit"
+        android:text="Submit Ride"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"/>
+</LinearLayout>
