@@ -47,20 +47,31 @@ public class AddRideActivity extends AppCompatActivity {
             }
 
             String userId = user.getUid();
-            String riderName = user.getDisplayName() != null ? user.getDisplayName() : "Unknown";
-
-            Ride newRide = new Ride(from, to, date, time, userId, riderName);
+            String riderId = null;
+            String driverId = null;
 
             if (selectedTypeId == R.id.radioOffer) {
-                new StoreRideOfferTask().execute(newRide);
+                driverId = userId;
             } else if (selectedTypeId == R.id.radioRequest) {
-                new StoreRideRequestTask().execute(newRide);
+                riderId = userId;
             } else {
                 Toast.makeText(this, "Please select ride type", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean accepted = false;
+            boolean completed = false;
+
+            Ride newRide = new Ride(date, time, from, to, riderId, driverId, accepted, completed);
+
+            if (driverId != null) {
+                new StoreRideOfferTask().execute(newRide);
+            } else {
+                new StoreRideRequestTask().execute(newRide);
             }
 
             Toast.makeText(this, "Ride added!", Toast.LENGTH_SHORT).show();
-            finish(); // Return to previous screen
+            finish();
         });
     }
 }
