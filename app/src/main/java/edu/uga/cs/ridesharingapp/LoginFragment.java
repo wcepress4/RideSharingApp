@@ -13,11 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 
 public class LoginFragment extends Fragment {
-    private FirebaseAuth mAuth;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -28,7 +25,6 @@ public class LoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        mAuth = FirebaseAuth.getInstance();
         EditText emailInput = view.findViewById(R.id.emailInput);
         EditText passwordInput = view.findViewById(R.id.passwordInput);
         Button loginButton = view.findViewById(R.id.loginButton);
@@ -43,15 +39,8 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            startActivity(new Intent(getActivity(), MainActivity.class));
-                            getActivity().finish();
-                        } else {
-                            Toast.makeText(getContext(), "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+            // Execute async login task
+            new LoginUserTask(getContext(), getActivity()).execute(email, password);
         });
 
         switchToRegister.setOnClickListener(v -> {
