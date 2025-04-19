@@ -1,6 +1,8 @@
 package edu.uga.cs.ridesharingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -45,15 +47,14 @@ public class MainActivity extends AppCompatActivity {
         // Initialize TabLayout and RecyclerView
         tabLayout = findViewById(R.id.tabLayout);
         recyclerView = findViewById(R.id.recyclerView);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Setup tab layout listener to switch between "Offers" and "Requests"
+        // Set up tab layout switching
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                currentTab = tab.getText().toString();  // Get selected tab's text
-                loadRideDetails();  // Load ride details based on selected tab
+                currentTab = tab.getText().toString();
+                loadRideDetails();
             }
 
             @Override
@@ -63,19 +64,37 @@ public class MainActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Default loading of rides when the activity starts
+        // ✅ Bottom Navigation Click Listeners
+        ImageView homeButton = findViewById(R.id.homeButton);
+        ImageView addRideButton = findViewById(R.id.addRideButton);
+        ImageView profileButton = findViewById(R.id.profileButton);
+
+        homeButton.setOnClickListener(v -> {
+            recyclerView.scrollToPosition(0);  // Optional: scroll to top
+        });
+
+        addRideButton.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, RideActivity.class));
+        });
+
+        profileButton.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+        });
+
+        // Load default ride list
         loadRideDetails();
     }
+
 
     private void loadRideDetails() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ridesRef;
 
         // Select the database reference based on the selected tab
-        if (currentTab.equals("Offers")) {
-            ridesRef = database.getReference("rideOffers");  // Fetch ride offers from Firebase
+        if (currentTab.equals("Ride Offers")) {
+            ridesRef = database.getReference("rideOffers");
         } else {
-            ridesRef = database.getReference("rideRequests");  // Fetch ride requests from Firebase
+            ridesRef = database.getReference("rideRequests");
         }
 
         // Fetch data from Firebase
