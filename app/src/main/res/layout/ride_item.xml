@@ -1,46 +1,79 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:elevation="4dp">
+    android:layout_margin="16dp"
+    android:elevation="8dp"
+    android:radius="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        android:layout_margin="8dp">
 
-        <TextView android:id="@+id/rideDate"
+        <!-- Ride Date -->
+        <TextView
+            android:id="@+id/rideDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Date"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp" />
 
-        <TextView android:id="@+id/rideTime"
+        <!-- Ride Time -->
+        <TextView
+            android:id="@+id/rideTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time" />
+            android:text="Time"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="8dp" />
 
-        <TextView android:id="@+id/fromLocation"
+        <!-- From Location -->
+        <TextView
+            android:id="@+id/fromLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="From" />
+            android:text="From"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="8dp" />
 
-        <TextView android:id="@+id/toLocation"
+        <!-- To Location -->
+        <TextView
+            android:id="@+id/toLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="To" />
+            android:text="To"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="8dp" />
 
-        <TextView android:id="@+id/riderName"
+        <!-- Rider Name -->
+        <TextView
+            android:id="@+id/riderName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rider" />
+            android:text="Rider"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Accept Button -->
         <Button
             android:id="@+id/acceptButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Accept Ride" />
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Accept Ride"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:layout_marginTop="12dp"
+            android:layout_gravity="center" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

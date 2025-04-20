@@ -1,8 +1,10 @@
 package edu.uga.cs.ridesharingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ public class AddRideActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        // Initialize UI elements
         editTextFrom = findViewById(R.id.editTextFrom);
         editTextTo = findViewById(R.id.editTextTo);
         editTextDate = findViewById(R.id.editTextDate);
@@ -33,6 +36,7 @@ public class AddRideActivity extends AppCompatActivity {
         radioGroupType = findViewById(R.id.radioGroupType);
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
+        // Handle Submit button
         buttonSubmit.setOnClickListener(v -> {
             String from = editTextFrom.getText().toString().trim();
             String to = editTextTo.getText().toString().trim();
@@ -57,10 +61,33 @@ public class AddRideActivity extends AppCompatActivity {
                 new StoreRideRequestTask().execute(newRide);
             } else {
                 Toast.makeText(this, "Please select ride type", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             Toast.makeText(this, "Ride added!", Toast.LENGTH_SHORT).show();
-            finish(); // Return to previous screen
+            finish(); // Close activity
+        });
+
+        // Handle Back Arrow to MainActivity
+        ImageView backArrow = findViewById(R.id.backArrow);
+        backArrow.setOnClickListener(v -> {
+            startActivity(new Intent(AddRideActivity.this, MainActivity.class));
+            finish();
+        });
+
+        // Bottom navbar buttons
+        ImageView homeButton = findViewById(R.id.homeButton);
+        ImageView profileButton = findViewById(R.id.profileButton);
+        ImageView addRideButton = findViewById(R.id.addRideButton); // No need to set action, already in this activity
+
+        homeButton.setOnClickListener(v -> {
+            startActivity(new Intent(AddRideActivity.this, MainActivity.class));
+            finish();
+        });
+
+        profileButton.setOnClickListener(v -> {
+            startActivity(new Intent(AddRideActivity.this, ProfileActivity.class));
+            finish();
         });
     }
 }

@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:contentDescription="List of available rides"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -16,36 +15,61 @@
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/tabLayout"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tab Layout for Ride Offers and Ride Requests -->
+    <!-- Greeting -->
+    <TextView
+        android:id="@+id/userGreeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello, User"
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Points -->
+    <TextView
+        android:id="@+id/userPoints"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Points: 0"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/userGreeting"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="44dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+        app:tabGravity="fill"
         app:tabMode="fixed"
-        app:tabGravity="fill">
+        app:tabSelectedTextColor="@android:color/holo_red_dark"
+        app:tabIndicatorColor="@android:color/holo_red_dark"
+        app:tabIndicatorAnimationMode="fade">
 
         <com.google.android.material.tabs.TabItem
-            android:text="Ride Offers"
+            android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_width="36dp"/>
+            android:text="Ride Offers" />
 
         <com.google.android.material.tabs.TabItem
-            android:text="Ride Requests"
+            android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_width="36dp"/>
+            android:text="Ride Requests" />
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- RecyclerView for displaying Ride details in a card-like layout -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
@@ -56,46 +80,42 @@
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigation" />
 
     <!-- Bottom Navigation Bar -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/bottomNavigation"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="64dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:background="#000000">
+        android:orientation="horizontal"
+        android:background="@android:color/black"
+        android:gravity="center"
+        android:weightSum="3"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/homeButton"
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
             android:src="@drawable/home"
-            android:layout_marginTop="8dp"
-            android:contentDescription="Home Button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:contentDescription="Home Button" />
 
         <ImageView
             android:id="@+id/addRideButton"
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
             android:src="@drawable/plus"
-            android:contentDescription="Add Ride"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/homeButton"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:contentDescription="Add Ride" />
 
         <ImageView
             android:id="@+id/profileButton"
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
             android:src="@drawable/profile"
-            android:contentDescription="Profile Button"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/addRideButton"
-            app:layout_constraintEnd_toEndOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:contentDescription="Profile Button" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
