@@ -15,7 +15,7 @@
 
         <TextView
             android:id="@+id/appTitle"
-            android:text="RideSharingApp"
+            android:text="UGo"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="#000000"
@@ -42,6 +42,28 @@
             android:background="@android:drawable/edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/firstNameInput"
+            android:hint="First Name"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/lastNameInput"
+            android:hint="Last Name"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
 
         <EditText
             android:id="@+id/passwordInput"

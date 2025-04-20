@@ -24,6 +24,8 @@ public class RegisterFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
         EditText emailInput = view.findViewById(R.id.emailInput);
+        EditText firstNameInput = view.findViewById(R.id.firstNameInput);
+        EditText lastNameInput = view.findViewById(R.id.lastNameInput);
         EditText passwordInput = view.findViewById(R.id.passwordInput);
         EditText retypePasswordInput = view.findViewById(R.id.retypePasswordInput);
         Button registerButton = view.findViewById(R.id.registerButton);
@@ -31,10 +33,12 @@ public class RegisterFragment extends Fragment {
 
         registerButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
+            String firstName = firstNameInput.getText().toString().trim();
+            String lastName = lastNameInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
             String retypePassword = retypePasswordInput.getText().toString().trim();
 
-            if (email.isEmpty() || password.isEmpty() || retypePassword.isEmpty()) {
+            if (email.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || password.isEmpty() || retypePassword.isEmpty()) {
                 Toast.makeText(getContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -45,7 +49,7 @@ public class RegisterFragment extends Fragment {
             }
 
             // Execute async registration task
-            new RegisterUserTask(getContext()).execute(email, password);
+            new RegisterUserTask(getContext()).execute(email, firstName, lastName, password);
         });
 
         switchToLogin.setOnClickListener(v -> {

@@ -21,11 +21,11 @@ public class RegisterUserTask extends AsyncTask<String, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
         String email = params[0];
-        String password = params[1];
+        String firstName = params[1];
+        String lastName = params[2];
+        String password = params[3];
 
         final boolean[] result = {false};
-
-        // Firebase operations need to run synchronously within the async wrapper
         final Object lock = new Object();
 
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -33,9 +33,13 @@ public class RegisterUserTask extends AsyncTask<String, Boolean> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            // Give initial points (100)
-                            FirebaseDatabase.getInstance().getReference("points")
-                                    .child(user.getUid()).setValue(100);
+                            String uid = user.getUid();
+                            FirebaseDatabase db = FirebaseDatabase.getInstance();
+
+                            db.getReference("users").child(uid).child("firstName").setValue(firstName);
+                            db.getReference("users").child(uid).child("lastName").setValue(lastName);
+                            db.getReference("users").child(uid).child("points").setValue(50);
+
                             result[0] = true;
                         }
                     }
