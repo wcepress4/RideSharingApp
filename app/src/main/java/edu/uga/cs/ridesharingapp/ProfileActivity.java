@@ -5,18 +5,25 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private TextView nameTextView, emailTextView, pointsTextView;
     private Button backButton, logoutButton;
+    private RecyclerView completedRidesRecyclerView;
+    private RideAdapter rideAdapter; // Adapter to display completed rides
 
     private FirebaseAuth mAuth;
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +35,8 @@ public class ProfileActivity extends AppCompatActivity {
         emailTextView = findViewById(R.id.emailTextView);
         pointsTextView = findViewById(R.id.pointsTextView);
         backButton = findViewById(R.id.backButton);
-        logoutButton = findViewById(R.id.logoutButton); // NEW BUTTON
+        logoutButton = findViewById(R.id.logoutButton);
+        completedRidesRecyclerView = findViewById(R.id.completedRidesRecyclerView); // NEW RecyclerView for completed rides
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -38,6 +46,11 @@ public class ProfileActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        currentUserId = user.getUid();  // Store the current user ID
+
+        // Initialize RecyclerView
+        completedRidesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Handle back button
         backButton.setOnClickListener(v -> finish());
@@ -60,5 +73,43 @@ public class ProfileActivity extends AppCompatActivity {
             emailTextView.setText("Email: " + result.email);
             pointsTextView.setText("Points: " + result.points);
         }).fetchProfile();
+
+        // Fetch completed rides for the user
+        loadCompletedRides();
+    }
+
+    private void loadCompletedRides() {
+        RetrieveFilteredRidesTask task = new RetrieveFilteredRidesTask(
+                new RetrieveFilteredRidesTask.RideDataCallback() {
+                    @Override
+                    public void onRidesRetrieved(List<Ride> rides) {
+                        // Filter completed rides only
+                        List<Ride> completedRides = filterCompletedRides(rides);
+                        displayCompletedRides(completedRides);
+                    }
+                },
+                RetrieveFilteredRidesTask.FilterType.COMPLETED_BY_USER,
+                currentUserId,  // Pass current user ID
+                false  // We don't need to specify offer or request for this task
+        );
+        task.fetchData(); // Fetch completed rides from Firebase
+    }
+
+    private List<Ride> filterCompletedRides(List<Ride> rides) {
+        List<Ride> completedRides = new ArrayList<>();
+        for (Ride ride : rides) {
+            if (ride.getCompleted()) {
+                completedRides.add(ride);
+            }
+        }
+        return completedRides;
+    }
+
+    private void displayCompletedRides(List<Ride> completedRides) {
+        rideAdapter = new RideAdapter(completedRides, ride -> {
+            // You can add any click action for completed rides if needed
+            Toast.makeText(ProfileActivity.this, "Ride details for completed ride", Toast.LENGTH_SHORT).show();
+        });
+        completedRidesRecyclerView.setAdapter(rideAdapter);  // Set adapter to display completed rides
     }
 }
