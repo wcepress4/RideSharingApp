@@ -33,11 +33,12 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     @Override
     public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         Ride ride = rideList.get(position);
-        holder.rideDate.setText(ride.getDate());
-        holder.rideTime.setText(ride.getTime());
+        holder.rideDate.setText("Date: " + ride.getDate());
+        holder.rideTime.setText("Time: " + ride.getTime());
         holder.fromLocation.setText("From: " + ride.getFromLocation());
         holder.toLocation.setText("To: " + ride.getToLocation());
-        holder.riderName.setText("Rider: " + ride.getRiderName());
+        holder.riderIdTextView.setText("Rider ID: " + ride.getRiderId());
+        holder.driverIdTextView.setText("Driver ID: " + ride.getDriverId());
 
         holder.acceptButton.setOnClickListener(v -> onAcceptClickListener.onAcceptClick(ride));
     }
@@ -48,7 +49,7 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     }
 
     public static class RideViewHolder extends RecyclerView.ViewHolder {
-        TextView rideDate, rideTime, fromLocation, toLocation, riderName;
+        TextView rideDate, rideTime, fromLocation, toLocation, riderIdTextView, driverIdTextView;
         Button acceptButton;
 
         public RideViewHolder(View itemView) {
@@ -57,7 +58,8 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
             rideTime = itemView.findViewById(R.id.rideTime);
             fromLocation = itemView.findViewById(R.id.fromLocation);
             toLocation = itemView.findViewById(R.id.toLocation);
-            riderName = itemView.findViewById(R.id.riderName);
+            riderIdTextView = itemView.findViewById(R.id.riderIdTextView);
+            driverIdTextView = itemView.findViewById(R.id.driverIdTextView);
             acceptButton = itemView.findViewById(R.id.acceptButton);
         }
     }
