@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RideAdapter rideAdapter;
     private String currentTab = "Ride Offers";  // Default tab
+    private String currentUserId;  // ✅ Store user ID here
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        currentUserId = currentUser.getUid();  // ✅ Get current user ID
 
         tabLayout = findViewById(R.id.tabLayout);
         recyclerView = findViewById(R.id.recyclerView);
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         addRideButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddRideActivity.class);
-            startActivityForResult(intent, ADD_RIDE_REQUEST_CODE);  // ✅ launch with request code
+            startActivityForResult(intent, ADD_RIDE_REQUEST_CODE);
         });
 
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
@@ -75,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
         loadRideDetails(); // Initial load
     }
 
-    // ✅ Refresh ride list when coming back from AddRideActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -85,33 +87,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadRideDetails() {
-        if (currentTab.equals("Ride Offers")) {
-            RetrieveRideOffersTask offersTask = new RetrieveRideOffersTask(new RetrieveRideOffersTask.RideDataCallback() {
-                @Override
-                public void onRidesRetrieved(List<Ride> rides) {
-                    displayRides(rides);
-                }
-            });
-            offersTask.fetchData();
-        } else {
-            RetrieveRideRequestsTask requestsTask = new RetrieveRideRequestsTask(new RetrieveRideRequestsTask.RideDataCallback() {
-                @Override
-                public void onRidesRetrieved(List<Ride> rides) {
-                    displayRides(rides);
-                }
-            });
-            requestsTask.fetchData();
-        }
+        RetrieveFilteredRidesTask.FilterType filterType = RetrieveFilteredRidesTask.FilterType.ALL_AVAILABLE;
+        boolean isOffer = currentTab.equals("Ride Offers"); // You can adjust this to match your UI
+
+        RetrieveFilteredRidesTask task = new RetrieveFilteredRidesTask(
+                new RetrieveFilteredRidesTask.RideDataCallback() {
+                    @Override
+                    public void onRidesRetrieved(List<Ride> rides) {
+                        displayRides(rides);
+                    }
+                },
+                filterType,
+                currentUserId,  // ✅ Passed correctly now
+                isOffer
+        );
+
+        task.fetchData(); // Don't use execute()
     }
 
     private void displayRides(List<Ride> rideList) {
         rideAdapter = new RideAdapter(rideList, ride -> {
             Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show();
 
-            // TODO: Add Firebase logic to mark ride as accepted, e.g.:
-            // ride.setAccepted(true);
-            // ride.setDriverId(currentUser.getUid()); // if current user is driver
-            // Update in Firebase
+            // TODO: Implement accept logic, like marking it as accepted in Firebase
         });
         recyclerView.setAdapter(rideAdapter);
     }
