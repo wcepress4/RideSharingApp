@@ -64,6 +64,27 @@
             android:textColor="#555555"
             android:layout_marginBottom="16dp" />
 
+        <!-- Rider ID -->
+        <TextView
+            android:id="@+id/riderIdTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rider ID"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Driver ID -->
+        <TextView
+            android:id="@+id/driverIdTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Driver ID"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="16dp" />
+
+
         <!-- Accept Button -->
         <Button
             android:id="@+id/acceptButton"

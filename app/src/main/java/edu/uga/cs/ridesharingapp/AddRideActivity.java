@@ -1,8 +1,10 @@
 package edu.uga.cs.ridesharingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -33,6 +35,22 @@ public class AddRideActivity extends AppCompatActivity {
         radioGroupType = findViewById(R.id.radioGroupType);
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
+        // Bottom nav buttons
+        ImageView homeButton = findViewById(R.id.homeButton);
+        ImageView profileButton = findViewById(R.id.profileButton);
+
+        // Handle Home Button click
+        homeButton.setOnClickListener(v -> {
+            startActivity(new Intent(AddRideActivity.this, MainActivity.class));
+            finish(); // optional: if you want to close AddRideActivity
+        });
+
+        // Handle Profile Button click
+        profileButton.setOnClickListener(v -> {
+            startActivity(new Intent(AddRideActivity.this, ProfileActivity.class));
+            finish(); // optional: if you want to close AddRideActivity
+        });
+
         buttonSubmit.setOnClickListener(v -> {
             String from = editTextFrom.getText().toString().trim();
             String to = editTextTo.getText().toString().trim();
@@ -47,9 +65,11 @@ public class AddRideActivity extends AppCompatActivity {
             }
 
             String userId = user.getUid();
-            String riderName = user.getDisplayName() != null ? user.getDisplayName() : "Unknown";
+            String driverId = ""; // initially empty
+            boolean accepted = false;
+            boolean completed = false;
 
-            Ride newRide = new Ride(from, to, date, time, userId, riderName);
+            Ride newRide = new Ride(date, time, from, to, userId, driverId, accepted, completed);
 
             if (selectedTypeId == R.id.radioOffer) {
                 new StoreRideOfferTask().execute(newRide);
@@ -57,10 +77,12 @@ public class AddRideActivity extends AppCompatActivity {
                 new StoreRideRequestTask().execute(newRide);
             } else {
                 Toast.makeText(this, "Please select ride type", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             Toast.makeText(this, "Ride added!", Toast.LENGTH_SHORT).show();
-            finish(); // Return to previous screen
+            finish();
         });
     }
+
 }
