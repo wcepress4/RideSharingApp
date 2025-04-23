@@ -36,6 +36,20 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
+        Button myRidesButton = findViewById(R.id.myRidesButton);
+        Button ridesHistoryButton = findViewById(R.id.ridesHistoryButton);
+
+        myRidesButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, MyRideActivity.class);
+            startActivity(intent);
+        });
+
+        ridesHistoryButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, RidesHistoryActivity.class);
+            startActivity(intent);
+        });
+
+
         // Initialize views
         nameTextView = findViewById(R.id.nameTextView);
         emailTextView = findViewById(R.id.emailTextView);

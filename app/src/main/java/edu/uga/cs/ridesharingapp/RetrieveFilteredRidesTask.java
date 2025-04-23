@@ -86,6 +86,17 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
                         filteredRides.add(ride);
                     }
                 }
+                Collections.sort(filteredRides, (r1, r2) -> {
+                    try {
+                        // Adjusting the date-time format to match your DB format
+                        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+                        Date d1 = sdf.parse(r1.getDate() + " " + r1.getTime());
+                        Date d2 = sdf.parse(r2.getDate() + " " + r2.getTime());
+                        return d1.compareTo(d2); // Earliest ride first
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                });
 
                 callback.onRidesRetrieved(filteredRides);
             }

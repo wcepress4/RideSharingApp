@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Title Section -->
     <TextView
         android:id="@+id/titleTextView"
         android:text="UGA Rideshare"
@@ -20,7 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Greeting -->
     <TextView
         android:id="@+id/userGreeting"
         android:layout_width="wrap_content"
@@ -32,7 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Points -->
     <TextView
         android:id="@+id/userPoints"
         android:layout_width="wrap_content"
@@ -50,7 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleTextView"
         app:tabGravity="fill"
@@ -79,7 +75,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigation" />
 
-    <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"

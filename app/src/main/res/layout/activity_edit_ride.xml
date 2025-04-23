@@ -31,7 +31,7 @@
             android:id="@+id/pageTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add a Ride"
+            android:text="Edit a Ride"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
@@ -144,7 +144,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:backgroundTint="@android:color/holo_red_dark"
-            android:text="Submit Ride"
+            android:text="Update Ride"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
     </LinearLayout>

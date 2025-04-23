@@ -3,8 +3,10 @@ package edu.uga.cs.ridesharingapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -24,8 +31,11 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private RecyclerView recyclerView;
     private RideAdapter rideAdapter;
-    private String currentTab = "Ride Offers";  // Default tab
-    private String currentUserId;  // ✅ Store user ID here
+    private String currentTab = "Ride Offers";
+    private String currentUserId;
+
+    private TextView userGreeting;
+    private TextView userPoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
-
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
         if (currentUser == null) {
             Toast.makeText(this, "Please login first.", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -42,7 +52,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        currentUserId = currentUser.getUid();  // ✅ Get current user ID
+        currentUserId = currentUser.getUid();
+
+        // Get views
+        userGreeting = findViewById(R.id.userGreeting);
+        userPoints = findViewById(R.id.userPoints);
+
+        fetchUserInfo(); // 🔥 Fetch and display user name + points
 
         tabLayout = findViewById(R.id.tabLayout);
         recyclerView = findViewById(R.id.recyclerView);
@@ -55,27 +71,44 @@ public class MainActivity extends AppCompatActivity {
                 loadRideDetails();
             }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        ImageView homeButton = findViewById(R.id.homeButton);
-        ImageView addRideButton = findViewById(R.id.addRideButton);
-        ImageView profileButton = findViewById(R.id.profileButton);
-
-        homeButton.setOnClickListener(v -> recyclerView.scrollToPosition(0));
-
-        addRideButton.setOnClickListener(v -> {
+        findViewById(R.id.homeButton).setOnClickListener(v -> recyclerView.scrollToPosition(0));
+        findViewById(R.id.addRideButton).setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddRideActivity.class);
             startActivityForResult(intent, ADD_RIDE_REQUEST_CODE);
         });
+        findViewById(R.id.profileButton).setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class))
+        );
 
-        profileButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
+        loadRideDetails();
+    }
 
-        loadRideDetails(); // Initial load
+    private void fetchUserInfo() {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String firstName = snapshot.child("firstName").getValue(String.class);
+                String lastName = snapshot.child("lastName").getValue(String.class);
+                Long points = snapshot.child("points").getValue(Long.class);
+
+                if (firstName != null && lastName != null) {
+                    userGreeting.setText("Hello, " + firstName + " " + lastName);
+                }
+                if (points != null) {
+                    userPoints.setText("Points: " + points);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -88,29 +121,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadRideDetails() {
         RetrieveFilteredRidesTask.FilterType filterType = RetrieveFilteredRidesTask.FilterType.ALL_AVAILABLE;
-        boolean isOffer = currentTab.equals("Ride Offers"); // You can adjust this to match your UI
+        boolean isOffer = currentTab.equals("Ride Offers");
 
         RetrieveFilteredRidesTask task = new RetrieveFilteredRidesTask(
-                new RetrieveFilteredRidesTask.RideDataCallback() {
-                    @Override
-                    public void onRidesRetrieved(List<Ride> rides) {
-                        displayRides(rides);
-                    }
-                },
+                rideList -> displayRides(rideList),
                 filterType,
-                currentUserId,  // ✅ Passed correctly now
+                currentUserId,
                 isOffer
         );
-
-        task.fetchData(); // Don't use execute()
+        task.fetchData();
     }
+
+    // inside MainActivity.java
 
     private void displayRides(List<Ride> rideList) {
-        rideAdapter = new RideAdapter(rideList, ride -> {
-            Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show();
+        boolean isOfferTab = currentTab.equals("Ride Offers");
 
-            // TODO: Implement accept logic, like marking it as accepted in Firebase
-        });
+        rideAdapter = new RideAdapter(
+                rideList,
+                ride -> Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show(),
+                currentUserId,
+                isOfferTab
+        );
+
         recyclerView.setAdapter(rideAdapter);
     }
+
 }
