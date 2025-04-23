@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class AddRideActivity extends AppCompatActivity {
+public class EditRideActivity extends AppCompatActivity {
 
     private EditText editTextFrom, editTextTo;
     private TextView textViewDate, textViewTime, textViewValidation;
@@ -26,7 +26,7 @@ public class AddRideActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_ride);
+        setContentView(R.layout.activity_edit_ride);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -45,7 +45,7 @@ public class AddRideActivity extends AppCompatActivity {
 
         // Handle back arrow to MainActivity
         backArrow.setOnClickListener(v -> {
-            Intent intent = new Intent(AddRideActivity.this, MainActivity.class);
+            Intent intent = new Intent(EditRideActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         });
@@ -118,12 +118,12 @@ public class AddRideActivity extends AppCompatActivity {
         ImageView profileButton = findViewById(R.id.profileButton);
 
         homeButton.setOnClickListener(v -> {
-            startActivity(new Intent(AddRideActivity.this, MainActivity.class));
+            startActivity(new Intent(EditRideActivity.this, MainActivity.class));
             finish();
         });
 
         profileButton.setOnClickListener(v -> {
-            startActivity(new Intent(AddRideActivity.this, ProfileActivity.class));
+            startActivity(new Intent(EditRideActivity.this, ProfileActivity.class));
             finish();
         });
     }

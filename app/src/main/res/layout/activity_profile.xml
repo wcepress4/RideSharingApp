@@ -66,17 +66,6 @@
             android:layout_height="wrap_content"
             android:padding="20dp">
 
-            <!-- Edit Button -->
-            <Button
-                android:id="@+id/editDetailsButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                android:textColor="@android:color/white"
-                android:backgroundTint="@android:color/holo_red_dark"
-                android:layout_alignParentEnd="true"
-                android:layout_marginBottom="8dp" />
-
             <!-- Name -->
             <TextView
                 android:id="@+id/nameTextView"
@@ -84,7 +73,6 @@
                 android:layout_height="wrap_content"
                 android:text="Name: John Doe"
                 android:textSize="18sp"
-                android:layout_below="@id/editDetailsButton"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="12dp" />
 
@@ -107,6 +95,31 @@
                 android:textSize="18sp"
                 android:layout_below="@id/emailTextView"
                 android:layout_marginTop="12dp" />
+
+            <!-- My Rides Button -->
+            <Button
+                android:id="@+id/myRidesButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Rides"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:layout_below="@id/pointsTextView"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="16dp" />
+
+            <!-- Rides History Button -->
+            <Button
+                android:id="@+id/ridesHistoryButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rides History"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:layout_alignBaseline="@id/myRidesButton"
+                android:layout_toEndOf="@id/myRidesButton"
+                android:layout_marginStart="16dp" />
+
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

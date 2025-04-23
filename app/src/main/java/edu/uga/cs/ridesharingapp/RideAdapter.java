@@ -1,26 +1,34 @@
 package edu.uga.cs.ridesharingapp;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder> {
 
     private List<Ride> rideList;
     private OnAcceptClickListener onAcceptClickListener;
+    private String currentUserId;
+    private boolean isOfferTab;
 
     public interface OnAcceptClickListener {
         void onAcceptClick(Ride ride);
     }
 
-    public RideAdapter(List<Ride> rideList, OnAcceptClickListener listener) {
+    public RideAdapter(List<Ride> rideList, OnAcceptClickListener listener, String currentUserId, boolean isOfferTab) {
         this.rideList = rideList;
         this.onAcceptClickListener = listener;
+        this.currentUserId = currentUserId;
+        this.isOfferTab = isOfferTab;
     }
 
     @NonNull
@@ -33,14 +41,24 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     @Override
     public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         Ride ride = rideList.get(position);
-        holder.rideDate.setText("Date: " + ride.getDate());
-        holder.rideTime.setText("Time: " + ride.getTime());
-        holder.fromLocation.setText("From: " + ride.getFromLocation());
-        holder.toLocation.setText("To: " + ride.getToLocation());
-        holder.riderIdTextView.setText("Rider ID: " + ride.getRiderId());
-        holder.driverIdTextView.setText("Driver ID: " + ride.getDriverId());
+
+        // Bind new fields according to new XML
+        holder.whenDetails.setText(ride.getDate() + " · " + ride.getTime());
+        holder.whereDetails.setText(ride.getFromLocation() + " ➔ " + ride.getToLocation());
+        holder.withDetails.setText(ride.getRiderId()); // Could replace with rider name if you have it
+
+        // Conditional visibility based on tab and user role
+        boolean showSettings = isOfferTab
+                ? currentUserId.equals(ride.getDriverId())
+                : currentUserId.equals(ride.getRiderId());
+        holder.settingsButton.setVisibility(showSettings ? View.VISIBLE : View.GONE);
 
         holder.acceptButton.setOnClickListener(v -> onAcceptClickListener.onAcceptClick(ride));
+
+        holder.settingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(holder.itemView.getContext(), EditRideActivity.class);
+            holder.itemView.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -49,18 +67,17 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     }
 
     public static class RideViewHolder extends RecyclerView.ViewHolder {
-        TextView rideDate, rideTime, fromLocation, toLocation, riderIdTextView, driverIdTextView;
+        TextView whenDetails, whereDetails, withDetails;
         Button acceptButton;
+        ImageButton settingsButton;
 
         public RideViewHolder(View itemView) {
             super(itemView);
-            rideDate = itemView.findViewById(R.id.rideDate);
-            rideTime = itemView.findViewById(R.id.rideTime);
-            fromLocation = itemView.findViewById(R.id.fromLocation);
-            toLocation = itemView.findViewById(R.id.toLocation);
-            riderIdTextView = itemView.findViewById(R.id.riderIdTextView);
-            driverIdTextView = itemView.findViewById(R.id.driverIdTextView);
+            whenDetails = itemView.findViewById(R.id.whenDetails);
+            whereDetails = itemView.findViewById(R.id.whereDetails);
+            withDetails = itemView.findViewById(R.id.withDetails);
             acceptButton = itemView.findViewById(R.id.acceptButton);
+            settingsButton = itemView.findViewById(R.id.settingsButton);
         }
     }
 }
