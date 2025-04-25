@@ -1,38 +1,41 @@
 package edu.uga.cs.ridesharingapp;
 
+import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.content.Intent;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+public class LogoutUserTask extends AsyncTask<Void, Boolean> {
 
-public class LogoutUserTask {
+    private Context context;
+    private Activity activity;
 
-    public interface LogoutCallback {
-        void onLogoutComplete();
-    }
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Handler handler = new Handler(Looper.getMainLooper());
-
-    private final Context context;
-    private final LogoutCallback callback;
-
-    public LogoutUserTask(Context context, LogoutCallback callback) {
+    public LogoutUserTask(Context context, Activity activity) {
         this.context = context;
-        this.callback = callback;
+        this.activity = activity;
     }
 
-    public void execute() {
-        executor.execute(() -> {
-            // Background work: Firebase sign out
+    @Override
+    protected Boolean doInBackground(Void... voids) {
+        try {
             FirebaseAuth.getInstance().signOut();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-            // Return to main thread
-            handler.post(callback::onLogoutComplete);
-        });
+    @Override
+    protected void onPostExecute(Boolean success) {
+        if (success) {
+            Toast.makeText(context, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+            activity.finish();
+        } else {
+            Toast.makeText(context, "Logout failed. Try again.", Toast.LENGTH_LONG).show();
+        }
     }
 }

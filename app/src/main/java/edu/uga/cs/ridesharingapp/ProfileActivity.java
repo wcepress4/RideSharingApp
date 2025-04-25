@@ -61,10 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Handle logout
         logoutButton.setOnClickListener(v -> {
-            mAuth.signOut();
-            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+            new LogoutUserTask(ProfileActivity.this, ProfileActivity.this).execute();
         });
 
         // Handle back arrow to MainActivity
