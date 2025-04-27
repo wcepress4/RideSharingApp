@@ -14,8 +14,8 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
     public enum FilterType {
         ALL_AVAILABLE,
         USER_CREATED,
-        ACCEPTED_BY_USER,
-        COMPLETED_BY_USER
+        ACCEPTED,
+        COMPLETED
     }
 
     private final RideDataCallback callback;
@@ -32,12 +32,12 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
 
     @Override
     protected List<Ride> doInBackground(Void... voids) {
-        return null; // Firebase is async, no use here
+        return null;
     }
 
     @Override
     protected void onPostExecute(List<Ride> rides) {
-        // Firebase handles this separately
+        // Not used
     }
 
     public void fetchData() {
@@ -48,17 +48,18 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 List<Ride> filteredRides = new ArrayList<>();
-                long now = System.currentTimeMillis();
 
                 for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
                     Ride ride = rideSnapshot.getValue(Ride.class);
                     if (ride == null) continue;
 
                     boolean include = false;
+                    boolean userInvolved = currentUserId.equals(ride.getDriverId()) || currentUserId.equals(ride.getRiderId());
+                    boolean isFullyCompleted = ride.getDriverCompleted() && ride.getRiderCompleted();
 
                     switch (filterType) {
                         case ALL_AVAILABLE:
-                            if (!ride.getAccepted() && !ride.getCompleted() && !isExpired(ride)) {
+                            if (!ride.getAccepted() && !isFullyCompleted && !isExpired(ride)) {
                                 include = true;
                             }
                             break;
@@ -68,15 +69,13 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
                                 include = true;
                             }
                             break;
-                        case ACCEPTED_BY_USER:
-                            boolean involved = currentUserId.equals(ride.getDriverId()) || currentUserId.equals(ride.getRiderId());
-                            if (involved && ride.getAccepted() && !ride.getCompleted() && !isExpired(ride)) {
+                        case ACCEPTED:
+                            if (userInvolved && ride.getAccepted() && !isFullyCompleted && !isExpired(ride)) {
                                 include = true;
                             }
                             break;
-                        case COMPLETED_BY_USER:
-                            boolean wasInvolved = currentUserId.equals(ride.getDriverId()) || currentUserId.equals(ride.getRiderId());
-                            if (wasInvolved && ride.getCompleted()) {
+                        case COMPLETED:
+                            if (userInvolved && isFullyCompleted) {
                                 include = true;
                             }
                             break;
@@ -86,13 +85,14 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
                         filteredRides.add(ride);
                     }
                 }
+
+                // Sort rides from soonest to most distant time
                 Collections.sort(filteredRides, (r1, r2) -> {
                     try {
-                        // Adjusting the date-time format to match your DB format
-                        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
                         Date d1 = sdf.parse(r1.getDate() + " " + r1.getTime());
                         Date d2 = sdf.parse(r2.getDate() + " " + r2.getTime());
-                        return d1.compareTo(d2); // Earliest ride first
+                        return d1.compareTo(d2);
                     } catch (Exception e) {
                         return 0;
                     }
@@ -119,3 +119,4 @@ public class RetrieveFilteredRidesTask extends AsyncTask<Void, List<Ride>> {
         }
     }
 }
+
