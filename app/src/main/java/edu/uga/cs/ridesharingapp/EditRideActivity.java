@@ -97,9 +97,10 @@ public class EditRideActivity extends AppCompatActivity {
             String userId = user.getUid();
             String driverId = ""; // initially empty
             boolean accepted = false;
-            boolean completed = false;
+            boolean driverCompleted = false;
+            boolean riderCompleted = false;
 
-            Ride newRide = new Ride(date, time, from, to, userId, driverId, accepted, completed);
+            Ride newRide = new Ride(date, time, from, to, userId, driverId, accepted, driverCompleted, riderCompleted);
 
             if (selectedTypeId == R.id.radioOffer) {
                 new StoreRideOfferTask().execute(newRide);
