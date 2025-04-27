@@ -8,13 +8,14 @@ public class Ride {
     private String riderId;
     private String driverId;
     private boolean accepted;
-    private boolean completed;
+    private boolean riderCompleted;
+    private boolean driverCompleted;
 
     public Ride() {
         // Default constructor required for Firebase
     }
 
-    public Ride(String date, String time, String fromLocation, String toLocation, String riderId, String driverId, boolean accepted, boolean completed) {
+    public Ride(String date, String time, String fromLocation, String toLocation, String riderId, String driverId, boolean accepted, boolean riderCompleted, boolean driverCompleted) {
         this.date = date;
         this.time = time;
         this.fromLocation = fromLocation;
@@ -22,7 +23,8 @@ public class Ride {
         this.riderId = riderId;
         this.driverId = driverId;
         this.accepted = accepted;
-        this.completed = completed;
+        this.riderCompleted = riderCompleted;
+        this.driverCompleted = driverCompleted;
     }
 
     public String getDate() {
@@ -51,5 +53,7 @@ public class Ride {
 
     public boolean getAccepted() { return accepted; }
 
-    public boolean getCompleted() { return completed; }
+    public boolean getRiderCompleted() { return riderCompleted; }
+
+    public boolean getDriverCompleted() { return driverCompleted; }
 }
