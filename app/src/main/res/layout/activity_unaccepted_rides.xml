@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/backArrow"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="26dp"
+        android:src="@drawable/back"
+        android:contentDescription="Back"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unaccepted Rides"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_alignTop="@id/backArrow"
+        android:layout_marginTop="28dp" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleText"
+        android:layout_marginTop="16dp"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@android:color/holo_red_dark"
+        app:tabIndicatorColor="@android:color/holo_red_dark"
+        app:tabIndicatorAnimationMode="fade">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:text="Ride Offers" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:text="Ride Requests" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewUnaccepted"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabLayout"
+        android:layout_marginTop="8dp" />
+
+</RelativeLayout>

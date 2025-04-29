@@ -34,12 +34,6 @@ public class AcceptedRideActivity extends AppCompatActivity implements RideAdapt
         }
         currentUserId = currentUser.getUid();
 
-        recyclerView = findViewById(R.id.recyclerViewAcceptedRides);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // true for 'accepted rides' page
-        rideAdapter = new RideAdapter(acceptedRidesList, this, currentUserId, false, true);
-        recyclerView.setAdapter(rideAdapter);
 
         loadAcceptedRides();
     }

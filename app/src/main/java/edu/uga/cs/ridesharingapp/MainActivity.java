@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 },
                 currentUserId,
                 isOfferTab,
-                false  // <<<< HERE: isAcceptedRidePage is FALSE in MainActivity
+                false
         );
 
         recyclerView.setAdapter(rideAdapter);

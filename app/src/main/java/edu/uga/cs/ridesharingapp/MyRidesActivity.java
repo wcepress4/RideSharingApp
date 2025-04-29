@@ -1,72 +1,73 @@
 package edu.uga.cs.ridesharingapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
-public class RidesHistoryActivity extends AppCompatActivity {
+public class MyRidesActivity extends AppCompatActivity {
 
     private LinearLayout cardContainer;
     private String currentUserId;
     private ImageView backArrow;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rides_history);
+        setContentView(R.layout.activity_my_rides);
 
+        // Initialize views
         backArrow = findViewById(R.id.backArrow);
-        backArrow.setOnClickListener(v -> navigateToProfileActivity());
+        backArrow.setOnClickListener(v -> finish());  // Navigates back to the previous activity
 
         cardContainer = findViewById(R.id.cardContainer);
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        fetchRideHistory();
+        fetchUserRides();
     }
 
-    private void fetchRideHistory() {
+    private void fetchUserRides() {
         DatabaseReference rideRequestsRef = FirebaseDatabase.getInstance().getReference("rideRequests");
         DatabaseReference rideOffersRef = FirebaseDatabase.getInstance().getReference("rideOffers");
 
+        // Fetch ride requests where the current user is involved, accepted and incomplete
         rideRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
                     Ride ride = rideSnapshot.getValue(Ride.class);
-                    if (ride != null && ride.getAccepted() && isUserInvolved(ride) && isPastDate(ride)) {
+                    if (ride != null && ride.getAccepted() && !ride.getRiderCompleted() && !ride.getDriverCompleted() &&
+                            isUserInvolved(ride)) {
                         addRideCard(ride);
                     }
                 }
-                rideOffersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
-                            Ride ride = rideSnapshot.getValue(Ride.class);
-                            if (ride != null && ride.getAccepted() && isUserInvolved(ride) && isPastDate(ride)) {
-                                addRideCard(ride);
-                            }
-                        }
-                    }
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError error) { }
-                });
+            @Override
+            public void onCancelled(DatabaseError error) { }
+        });
+
+        // Fetch ride offers where the current user is involved, accepted and incomplete
+        rideOffersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
+                    Ride ride = rideSnapshot.getValue(Ride.class);
+                    if (ride != null && ride.getAccepted() && !ride.getRiderCompleted() && !ride.getDriverCompleted() &&
+                            isUserInvolved(ride)) {
+                        addRideCard(ride);
+                    }
+                }
             }
 
             @Override
@@ -74,23 +75,14 @@ public class RidesHistoryActivity extends AppCompatActivity {
         });
     }
 
+    // Check if the current user is either the driver or the rider of the ride
     private boolean isUserInvolved(Ride ride) {
-        return currentUserId.equals(ride.getUserId()) ||
-                currentUserId.equals(ride.getDriverId()) ||
-                currentUserId.equals(ride.getRiderId());
+        return currentUserId.equals(ride.getDriverId()) || currentUserId.equals(ride.getRiderId());
     }
 
-    private boolean isPastDate(Ride ride) {
-        try {
-            Date rideDate = dateFormat.parse(ride.getDate() + " " + ride.getTime());
-            return rideDate != null && rideDate.before(new Date());
-        } catch (ParseException e) {
-            return false;
-        }
-    }
-
+    // Add the ride card view for the ride to the layout
     private void addRideCard(Ride ride) {
-        View cardView = getLayoutInflater().inflate(R.layout.history_ride_item, cardContainer, false);
+        View cardView = getLayoutInflater().inflate(R.layout.current_ride_item, cardContainer, false);
 
         TextView whenDetails = cardView.findViewById(R.id.whenDetails);
         TextView whereDetails = cardView.findViewById(R.id.whereDetails);
@@ -105,25 +97,19 @@ public class RidesHistoryActivity extends AppCompatActivity {
         String location = ride.getFromLocation() + " ➔ " + ride.getToLocation();
         whereDetails.setText(location);
 
-        // Set WITH
+        // Set WITH (driver or rider)
         String withText;
         if (currentUserId.equals(ride.getDriverId())) {
             withText = "Rider: " + ride.getRiderId();
-        } else if (currentUserId.equals(ride.getRiderId())) {
-            withText = "Driver: " + ride.getDriverId();
         } else {
-            withText = "User: " + ride.getUserId();
+            withText = "Driver: " + ride.getDriverId();
         }
         withDetails.setText(withText);
 
-        // Set ACCEPTED
+        // Set ACCEPTED status
         acceptedDetails.setText(ride.getAccepted() ? "Accepted" : "Pending");
 
+        // Add the card to the container
         cardContainer.addView(cardView);
-    }
-
-    private void navigateToProfileActivity() {
-        startActivity(new Intent(this, ProfileActivity.class));
-        finish();
     }
 }

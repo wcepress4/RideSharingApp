@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class ProfileActivity extends AppCompatActivity {
 
     private TextView nameTextView, emailTextView, pointsTextView;
-    private Button logoutButton;
+    private Button logoutButton, myRidesButton;  // Add reference to the "My Rides" button
     private ImageView backArrow, homeButton, addRideButton;
 
     private FirebaseAuth mAuth;
@@ -36,20 +36,6 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        Button myRidesButton = findViewById(R.id.myRidesButton);
-        Button ridesHistoryButton = findViewById(R.id.ridesHistoryButton);
-
-        myRidesButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, MyRideActivity.class);
-            startActivity(intent);
-        });
-
-        ridesHistoryButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, RidesHistoryActivity.class);
-            startActivity(intent);
-        });
-
-
         // Initialize views
         nameTextView = findViewById(R.id.nameTextView);
         emailTextView = findViewById(R.id.emailTextView);
@@ -58,6 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
         backArrow = findViewById(R.id.backArrow);
         homeButton = findViewById(R.id.homeButton);
         addRideButton = findViewById(R.id.addRideButton);
+        myRidesButton = findViewById(R.id.myRidesButton); // Initialize My Rides button
 
         // Handle logout
         logoutButton.setOnClickListener(v -> {
@@ -81,6 +68,12 @@ public class ProfileActivity extends AppCompatActivity {
         // Bottom Nav: Add Ride
         addRideButton.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, AddRideActivity.class);
+            startActivity(intent);
+        });
+
+        // Handle "My Rides" button click to go to MyRidesActivity
+        myRidesButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, MyRidesActivity.class);
             startActivity(intent);
         });
 

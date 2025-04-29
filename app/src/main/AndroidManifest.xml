@@ -15,6 +15,12 @@
         android:theme="@style/Theme.RideSharingApp"
         tools:targetApi="31">
         <activity
+            android:name=".MyRidesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UnacceptedRidesActivity"
+            android:exported="false" />
+        <activity
             android:name=".RidesHistoryActivity"
             android:exported="false" />
         <activity

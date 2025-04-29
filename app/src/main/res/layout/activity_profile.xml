@@ -10,8 +10,6 @@
     android:layout_marginTop="64dp">
 
     <!-- Back Arrow -->
-
-    <!-- Profile Title -->
     <ImageView
         android:id="@+id/backArrow"
         android:layout_width="32dp"
@@ -23,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Profile Title -->
     <TextView
         android:id="@+id/profileTitle"
         android:layout_width="wrap_content"
@@ -101,10 +100,22 @@
                 android:id="@+id/myRidesButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/holo_red_dark"
                 android:text="My Rides"
                 android:textColor="@android:color/white"
-                android:backgroundTint="@android:color/holo_red_dark"
                 android:layout_below="@id/pointsTextView"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="16dp" />
+
+            <!-- Unaccepted Rides Button -->
+            <Button
+                android:id="@+id/unacceptedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unaccepted Rides"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:layout_below="@id/myRidesButton"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="16dp" />
 
@@ -113,13 +124,12 @@
                 android:id="@+id/ridesHistoryButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rides History"
-                android:textColor="@android:color/white"
+                android:layout_below="@id/unacceptedButton"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="16dp"
                 android:backgroundTint="@android:color/holo_red_dark"
-                android:layout_alignBaseline="@id/myRidesButton"
-                android:layout_toEndOf="@id/myRidesButton"
-                android:layout_marginStart="16dp" />
-
+                android:text="Rides History"
+                android:textColor="@android:color/white" />
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
