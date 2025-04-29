@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class ProfileActivity extends AppCompatActivity {
 
     private TextView nameTextView, emailTextView, pointsTextView;
-    private Button logoutButton, myRidesButton;  // Add reference to the "My Rides" button
+    private Button logoutButton, myRidesButton, unacceptedButton, ridesHistoryButton;
     private ImageView backArrow, homeButton, addRideButton;
 
     private FirebaseAuth mAuth;
@@ -44,7 +44,9 @@ public class ProfileActivity extends AppCompatActivity {
         backArrow = findViewById(R.id.backArrow);
         homeButton = findViewById(R.id.homeButton);
         addRideButton = findViewById(R.id.addRideButton);
-        myRidesButton = findViewById(R.id.myRidesButton); // Initialize My Rides button
+        myRidesButton = findViewById(R.id.myRidesButton);
+        unacceptedButton = findViewById(R.id.unacceptedButton);
+        ridesHistoryButton = findViewById(R.id.ridesHistoryButton);
 
         // Handle logout
         logoutButton.setOnClickListener(v -> {
@@ -76,6 +78,17 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, MyRidesActivity.class);
             startActivity(intent);
         });
+
+        unacceptedButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, UnacceptedRidesActivity.class);
+            startActivity(intent);
+        });
+
+        ridesHistoryButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, RidesHistoryActivity.class);
+            startActivity(intent);
+        });
+
 
         // Fetch profile info asynchronously
         new RetrieveProfile(result -> {
