@@ -49,8 +49,8 @@ public class RidesHistoryActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
                     Ride ride = rideSnapshot.getValue(Ride.class);
-                    if (ride != null && ride.getAccepted() && isUserInvolved(ride) && isPastDate(ride)) {
-                        addRideCard(ride);
+                    if (ride != null && ride.getAccepted() && ride.getDriverCompleted() && ride.getRiderCompleted() && isUserInvolved(ride)) {
+                        addRideCard(ride, "request");
                     }
                 }
                 rideOffersRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -58,8 +58,8 @@ public class RidesHistoryActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot snapshot) {
                         for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
                             Ride ride = rideSnapshot.getValue(Ride.class);
-                            if (ride != null && ride.getAccepted() && isUserInvolved(ride) && isPastDate(ride)) {
-                                addRideCard(ride);
+                            if (ride != null && ride.getAccepted() && ride.getDriverCompleted() && ride.getRiderCompleted() && isUserInvolved(ride)) {
+                                addRideCard(ride, "offer");
                             }
                         }
                     }
@@ -80,22 +80,13 @@ public class RidesHistoryActivity extends AppCompatActivity {
                 currentUserId.equals(ride.getRiderId());
     }
 
-    private boolean isPastDate(Ride ride) {
-        try {
-            Date rideDate = dateFormat.parse(ride.getDate() + " " + ride.getTime());
-            return rideDate != null && rideDate.before(new Date());
-        } catch (ParseException e) {
-            return false;
-        }
-    }
-
-    private void addRideCard(Ride ride) {
+    private void addRideCard(Ride ride, String rideType) {
         View cardView = getLayoutInflater().inflate(R.layout.history_ride_item, cardContainer, false);
 
         TextView whenDetails = cardView.findViewById(R.id.whenDetails);
         TextView whereDetails = cardView.findViewById(R.id.whereDetails);
         TextView withDetails = cardView.findViewById(R.id.withDetails);
-        TextView acceptedDetails = cardView.findViewById(R.id.acceptedDetails);
+        TextView rideTypeDetails = cardView.findViewById(R.id.rideTypeDetails);
 
         // Set WHEN
         String dateTime = ride.getDate() + " · " + ride.getTime();
@@ -105,20 +96,28 @@ public class RidesHistoryActivity extends AppCompatActivity {
         String location = ride.getFromLocation() + " ➔ " + ride.getToLocation();
         whereDetails.setText(location);
 
-        // Set WITH
-        String withText;
-        if (currentUserId.equals(ride.getDriverId())) {
-            withText = "Rider: " + ride.getRiderId();
-        } else if (currentUserId.equals(ride.getRiderId())) {
-            withText = "Driver: " + ride.getDriverId();
-        } else {
-            withText = "User: " + ride.getUserId();
-        }
-        withDetails.setText(withText);
+        // Set WITH (Name instead of userId)
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users");
+        String oppositeUserId = (currentUserId.equals(ride.getDriverId())) ? ride.getRiderId() : ride.getDriverId();
 
-        // Set ACCEPTED
-        acceptedDetails.setText(ride.getAccepted() ? "Accepted" : "Pending");
+        userRef.child(oppositeUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String firstName = snapshot.child("firstName").getValue(String.class);
+                    String lastName = snapshot.child("lastName").getValue(String.class);
+                    withDetails.setText(firstName + " " + lastName);
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError error) { }
+        });
+
+        // Set Ride Type
+        rideTypeDetails.setText(rideType.equals("request") ? "Request" : "Offer");
+
+        // Add to container
         cardContainer.addView(cardView);
     }
 

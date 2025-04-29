@@ -1,119 +1,57 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    android:elevation="8dp"
-    android:radius="16dp">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF"
+    android:elevation="4dp"
+    android:layout_margin="8dp"
+    android:backgroundTint="#F5F5F5"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/whenDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date · Time"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/whereDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From → To"
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/withDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="With: User Name"
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/acceptedDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waiting for Confirmation (0/2)"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:paddingTop="4dp"
+        android:textColor="#444444" />
+
+    <Button
+        android:id="@+id/confirmRideButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="#FFFFFF">
-
-
-        <LinearLayout
-            android:id="@+id/cardContentLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp">
-
-            <!-- WHEN Title -->
-            <TextView
-                android:id="@+id/whenTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="WHEN"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="4dp" />
-
-            <!-- Date and Time on one line -->
-            <TextView
-                android:id="@+id/whenDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="April 23, 2025 · 5:00 PM"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:layout_marginBottom="16dp" />
-
-            <!-- WHERE Title -->
-            <TextView
-                android:id="@+id/whereTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="WHERE"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="4dp" />
-
-            <!-- From ➔ To -->
-            <TextView
-                android:id="@+id/whereDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="From Location ➔ To Location"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:layout_marginBottom="16dp" />
-
-            <!-- WITH Title -->
-            <TextView
-                android:id="@+id/withTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="WITH"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="4dp" />
-
-            <!-- Rider Name -->
-            <TextView
-                android:id="@+id/withDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rider Name"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:layout_marginBottom="24dp" />
-
-            <!-- STATUS Title -->
-            <TextView
-                android:id="@+id/acceptedTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="STATUS"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="4dp" />
-
-            <!-- Accepted Status -->
-            <TextView
-                android:id="@+id/acceptedDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="True/False"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Add/Edit Button (Single button that changes text dynamically) -->
-            <Button
-                android:id="@+id/confirmRideButton"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="Confirm Ride"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:backgroundTint="@android:color/holo_red_dark"
-                android:layout_gravity="center"/>
-        </LinearLayout>
-    </RelativeLayout>
-</androidx.cardview.widget.CardView>
+        android:text="Mark as Complete"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

@@ -12,7 +12,6 @@
         android:padding="16dp"
         android:background="#FFFFFF">
 
-
         <LinearLayout
             android:id="@+id/cardContentLayout"
             android:layout_width="match_parent"
@@ -20,7 +19,6 @@
             android:orientation="vertical"
             android:layout_marginTop="8dp">
 
-            <!-- WHEN Title -->
             <TextView
                 android:id="@+id/whenTitle"
                 android:layout_width="wrap_content"
@@ -31,7 +29,6 @@
                 android:textColor="#888888"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Date and Time on one line -->
             <TextView
                 android:id="@+id/whenDetails"
                 android:layout_width="wrap_content"
@@ -41,7 +38,6 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="16dp" />
 
-            <!-- WHERE Title -->
             <TextView
                 android:id="@+id/whereTitle"
                 android:layout_width="wrap_content"
@@ -52,7 +48,6 @@
                 android:textColor="#888888"
                 android:layout_marginBottom="4dp" />
 
-            <!-- From ➔ To -->
             <TextView
                 android:id="@+id/whereDetails"
                 android:layout_width="wrap_content"
@@ -62,7 +57,6 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="16dp" />
 
-            <!-- WITH Title -->
             <TextView
                 android:id="@+id/withTitle"
                 android:layout_width="wrap_content"
@@ -73,37 +67,33 @@
                 android:textColor="#888888"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Rider Name -->
             <TextView
                 android:id="@+id/withDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rider Name"
+                android:text="Name: Loading..."
                 android:textSize="16sp"
                 android:textColor="#000000"
                 android:layout_marginBottom="24dp" />
 
-            <!-- STATUS Title -->
             <TextView
-                android:id="@+id/acceptedTitle"
+                android:id="@+id/rideTypeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="STATUS"
+                android:text="RIDE TYPE"
                 android:textStyle="bold"
                 android:textSize="14sp"
                 android:textColor="#888888"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Accepted Status -->
             <TextView
-                android:id="@+id/acceptedDetails"
+                android:id="@+id/rideTypeDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="True/False"
+                android:text="Offer/Request"
                 android:textSize="16sp"
                 android:textColor="#000000"
                 android:layout_marginBottom="24dp" />
-
 
         </LinearLayout>
     </RelativeLayout>

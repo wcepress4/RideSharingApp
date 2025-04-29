@@ -27,6 +27,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="56dp" />
 
+    <TextView
+        android:id="@+id/noCurrentRidesMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Current Rides"
+        android:visibility="gone"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/titleHistory"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@android:color/darker_gray"
+        android:layout_gravity="center"/>
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"

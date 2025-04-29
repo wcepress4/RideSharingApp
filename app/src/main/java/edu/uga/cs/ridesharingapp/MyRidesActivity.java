@@ -1,19 +1,15 @@
+// MyRidesActivity.java
 package edu.uga.cs.ridesharingapp;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 public class MyRidesActivity extends AppCompatActivity {
 
@@ -26,9 +22,8 @@ public class MyRidesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_rides);
 
-        // Initialize views
         backArrow = findViewById(R.id.backArrow);
-        backArrow.setOnClickListener(v -> finish());  // Navigates back to the previous activity
+        backArrow.setOnClickListener(v -> finish());
 
         cardContainer = findViewById(R.id.cardContainer);
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -40,76 +35,116 @@ public class MyRidesActivity extends AppCompatActivity {
         DatabaseReference rideRequestsRef = FirebaseDatabase.getInstance().getReference("rideRequests");
         DatabaseReference rideOffersRef = FirebaseDatabase.getInstance().getReference("rideOffers");
 
-        // Fetch ride requests where the current user is involved, accepted and incomplete
-        rideRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Find the TextView for "No Current Rides" message
+        TextView noRidesMessage = findViewById(R.id.noCurrentRidesMessage);
+
+        // Hide the message initially
+        noRidesMessage.setVisibility(View.GONE);
+
+        ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                boolean hasRides = false;
+
                 for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
                     Ride ride = rideSnapshot.getValue(Ride.class);
-                    if (ride != null && ride.getAccepted() && !ride.getRiderCompleted() && !ride.getDriverCompleted() &&
-                            isUserInvolved(ride)) {
-                        addRideCard(ride);
+                    if (ride != null && ride.getAccepted() && (!ride.getDriverCompleted() || !ride.getRiderCompleted())) {
+                        if (isUserInvolved(ride)) {
+                            addRideCard(rideSnapshot.getKey(), ride, snapshot.getRef().getKey());
+                            hasRides = true;  // Mark that a ride has been added
+                        }
                     }
+                }
+
+                // If no rides were added, show the "No Current Rides" message
+                if (!hasRides) {
+                    noRidesMessage.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError error) { }
-        });
+        };
 
-        // Fetch ride offers where the current user is involved, accepted and incomplete
-        rideOffersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
-                    Ride ride = rideSnapshot.getValue(Ride.class);
-                    if (ride != null && ride.getAccepted() && !ride.getRiderCompleted() && !ride.getDriverCompleted() &&
-                            isUserInvolved(ride)) {
-                        addRideCard(ride);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) { }
-        });
+        // Add listener to both rideRequests and rideOffers references
+        rideRequestsRef.addListenerForSingleValueEvent(listener);
+        rideOffersRef.addListenerForSingleValueEvent(listener);
     }
 
-    // Check if the current user is either the driver or the rider of the ride
     private boolean isUserInvolved(Ride ride) {
         return currentUserId.equals(ride.getDriverId()) || currentUserId.equals(ride.getRiderId());
     }
 
-    // Add the ride card view for the ride to the layout
-    private void addRideCard(Ride ride) {
+    private void addRideCard(String rideId, Ride ride, String rideType) {
+        String oppositeUserId = currentUserId.equals(ride.getDriverId()) ? ride.getRiderId() : ride.getDriverId();
+
+        if (oppositeUserId == null || oppositeUserId.trim().isEmpty()) {
+            return;
+        }
+
         View cardView = getLayoutInflater().inflate(R.layout.current_ride_item, cardContainer, false);
 
         TextView whenDetails = cardView.findViewById(R.id.whenDetails);
         TextView whereDetails = cardView.findViewById(R.id.whereDetails);
         TextView withDetails = cardView.findViewById(R.id.withDetails);
         TextView acceptedDetails = cardView.findViewById(R.id.acceptedDetails);
+        Button confirmRideButton = cardView.findViewById(R.id.confirmRideButton);
 
-        // Set WHEN
         String dateTime = ride.getDate() + " · " + ride.getTime();
         whenDetails.setText(dateTime);
 
-        // Set WHERE
         String location = ride.getFromLocation() + " ➔ " + ride.getToLocation();
         whereDetails.setText(location);
 
-        // Set WITH (driver or rider)
-        String withText;
-        if (currentUserId.equals(ride.getDriverId())) {
-            withText = "Rider: " + ride.getRiderId();
+        // Get full name of opposite user
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(oppositeUserId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String firstName = snapshot.child("firstName").getValue(String.class);
+                    String lastName = snapshot.child("lastName").getValue(String.class);
+                    String fullName = (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+                    String role = currentUserId.equals(ride.getDriverId()) ? "Rider" : "Driver";
+                    withDetails.setText(role + ": " + fullName.trim());
+                } else {
+                    withDetails.setText("User: Unknown");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                withDetails.setText("User: Error");
+            }
+        });
+
+        int completedCount = (ride.getDriverCompleted() ? 1 : 0) + (ride.getRiderCompleted() ? 1 : 0);
+        acceptedDetails.setText(completedCount == 2 ? "Ride Complete (2/2)" : "Waiting for Confirmation (" + completedCount + "/2)");
+
+        boolean isDriver = currentUserId.equals(ride.getDriverId());
+        boolean currentCompleted = isDriver ? ride.getDriverCompleted() : ride.getRiderCompleted();
+
+        if (completedCount == 2) {
+            confirmRideButton.setVisibility(View.GONE);
+        } else if (currentCompleted) {
+            confirmRideButton.setEnabled(false);
+            confirmRideButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            confirmRideButton.setText(isDriver ? "Waiting for Rider" : "Waiting for Driver");
         } else {
-            withText = "Driver: " + ride.getDriverId();
+            confirmRideButton.setOnClickListener(v -> {
+                DatabaseReference rideRef = FirebaseDatabase.getInstance().getReference(rideType).child(rideId);
+                if (isDriver) {
+                    rideRef.child("driverCompleted").setValue(true);
+                } else {
+                    rideRef.child("riderCompleted").setValue(true);
+                }
+                confirmRideButton.setEnabled(false);
+                confirmRideButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                confirmRideButton.setText(isDriver ? "Waiting for Rider" : "Waiting for Driver");
+                acceptedDetails.setText("Waiting for Confirmation (" + (completedCount + 1) + "/2)");
+            });
         }
-        withDetails.setText(withText);
 
-        // Set ACCEPTED status
-        acceptedDetails.setText(ride.getAccepted() ? "Accepted" : "Pending");
-
-        // Add the card to the container
         cardContainer.addView(cardView);
     }
 }
