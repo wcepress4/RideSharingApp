@@ -12,7 +12,7 @@
         android:padding="16dp"
         android:background="#FFFFFF">
 
-        <!-- Settings (Gear) Icon -->
+        <!-- Settings (Gear) Icon - Delete Button -->
         <ImageButton
             android:id="@+id/settingsButton"
             android:layout_width="48dp"
@@ -21,7 +21,7 @@
             android:layout_alignParentEnd="true"
             android:background="@drawable/gear"
             android:backgroundTint="@android:color/holo_red_dark"
-            android:contentDescription="Settings"
+            android:contentDescription="Delete"
             android:padding="8dp"/>
 
         <LinearLayout
@@ -94,9 +94,9 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Accept Button -->
+            <!-- Add/Edit Button (Single button that changes text dynamically) -->
             <Button
-                android:id="@+id/acceptButton"
+                android:id="@+id/addEditButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="Accept Ride"

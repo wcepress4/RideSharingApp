@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,16 +20,19 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     private OnAcceptClickListener onAcceptClickListener;
     private String currentUserId;
     private boolean isOfferTab;
+    private boolean isAcceptedRidePage; // NEW
 
     public interface OnAcceptClickListener {
         void onAcceptClick(Ride ride);
     }
 
-    public RideAdapter(List<Ride> rideList, OnAcceptClickListener listener, String currentUserId, boolean isOfferTab) {
+    // Updated constructor
+    public RideAdapter(List<Ride> rideList, OnAcceptClickListener listener, String currentUserId, boolean isOfferTab, boolean isAcceptedRidePage) {
         this.rideList = rideList;
         this.onAcceptClickListener = listener;
         this.currentUserId = currentUserId;
         this.isOfferTab = isOfferTab;
+        this.isAcceptedRidePage = isAcceptedRidePage;
     }
 
     @NonNull
@@ -42,23 +46,71 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         Ride ride = rideList.get(position);
 
-        // Bind new fields according to new XML
         holder.whenDetails.setText(ride.getDate() + " · " + ride.getTime());
         holder.whereDetails.setText(ride.getFromLocation() + " ➔ " + ride.getToLocation());
-        holder.withDetails.setText(ride.getRiderId()); // Could replace with rider name if you have it
 
-        // Conditional visibility based on tab and user role
-        boolean showSettings = isOfferTab
-                ? currentUserId.equals(ride.getDriverId())
-                : currentUserId.equals(ride.getRiderId());
-        holder.settingsButton.setVisibility(showSettings ? View.VISIBLE : View.GONE);
+        // Who is involved
+        if (isOfferTab) {
+            String driverId = ride.getDriverId();
+            if (driverId != null && !driverId.isEmpty()) {
+                new RetrieveUserDetailsTask(holder).execute(driverId);
+            } else {
+                holder.withDetails.setText("Unknown Driver");
+            }
+        } else {
+            String riderId = ride.getRiderId();
+            if (riderId != null && !riderId.isEmpty()) {
+                new RetrieveUserDetailsTask(holder).execute(riderId);
+            } else {
+                holder.withDetails.setText("Unknown Rider");
+            }
+        }
 
-        holder.acceptButton.setOnClickListener(v -> onAcceptClickListener.onAcceptClick(ride));
+        if (isAcceptedRidePage) {
+            // Accepted Rides Page: Only show "Complete Ride"
+            holder.settingsButton.setVisibility(View.GONE);
+            holder.addEditButton.setText("Complete Ride");
+            holder.addEditButton.setOnClickListener(v -> {
+                onAcceptClickListener.onAcceptClick(ride);
+            });
+        }
+        else {
+            // Normal Offer or Request tab
+            boolean isUserCreated = isOfferTab
+                    ? currentUserId.equals(ride.getDriverId())
+                    : currentUserId.equals(ride.getRiderId());
 
-        holder.settingsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(holder.itemView.getContext(), EditRideActivity.class);
-            holder.itemView.getContext().startActivity(intent);
-        });
+            if (isUserCreated) {
+                holder.settingsButton.setVisibility(View.VISIBLE);
+                holder.addEditButton.setText("Edit Ride");
+
+                holder.addEditButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(holder.itemView.getContext(), EditRideActivity.class);
+                    intent.putExtra("ride", ride);
+                    holder.itemView.getContext().startActivity(intent);
+                });
+
+                holder.settingsButton.setOnClickListener(v -> {
+                    if (isOfferTab) {
+                        new DeleteRideOfferTask(ride.getRideKey()).execute(ride);
+                        Toast.makeText(holder.itemView.getContext(), "Ride deleted", Toast.LENGTH_SHORT).show();
+                    } else {
+                        new DeleteRideRequestTask(ride.getRideKey()).execute(ride);
+                        Toast.makeText(holder.itemView.getContext(), "Ride deleted", Toast.LENGTH_SHORT).show();
+                    }
+                    rideList.remove(position);
+                    notifyItemRemoved(position);
+                });
+            }
+            else {
+                holder.settingsButton.setVisibility(View.GONE);
+                holder.addEditButton.setText("Accept Ride");
+
+                holder.addEditButton.setOnClickListener(v -> {
+                    onAcceptClickListener.onAcceptClick(ride);
+                });
+            }
+        }
     }
 
     @Override
@@ -68,7 +120,7 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
 
     public static class RideViewHolder extends RecyclerView.ViewHolder {
         TextView whenDetails, whereDetails, withDetails;
-        Button acceptButton;
+        Button addEditButton;
         ImageButton settingsButton;
 
         public RideViewHolder(View itemView) {
@@ -76,7 +128,7 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
             whenDetails = itemView.findViewById(R.id.whenDetails);
             whereDetails = itemView.findViewById(R.id.whereDetails);
             withDetails = itemView.findViewById(R.id.withDetails);
-            acceptButton = itemView.findViewById(R.id.acceptButton);
+            addEditButton = itemView.findViewById(R.id.addEditButton);
             settingsButton = itemView.findViewById(R.id.settingsButton);
         }
     }

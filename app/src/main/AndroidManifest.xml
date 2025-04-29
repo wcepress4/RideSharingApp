@@ -41,6 +41,9 @@
         <activity
             android:name=".AddRideActivity"
             android:exported="false" />
+        <activity
+            android:name=".AcceptedRideActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

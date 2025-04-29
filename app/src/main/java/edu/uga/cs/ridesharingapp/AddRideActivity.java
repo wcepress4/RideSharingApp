@@ -19,7 +19,7 @@ public class AddRideActivity extends AppCompatActivity {
     private RadioGroup radioGroupType;
     private Button buttonSubmit, buttonPickDate, buttonPickTime;
     private Calendar selectedDateTime;
-    private ImageView backArrow;
+    private ImageView backArrow, homeButton, profileButton;
 
     private FirebaseAuth mAuth;
 
@@ -40,93 +40,53 @@ public class AddRideActivity extends AppCompatActivity {
         buttonSubmit = findViewById(R.id.buttonSubmit);
         textViewValidation = findViewById(R.id.textViewValidation);
         backArrow = findViewById(R.id.backArrow);
+        homeButton = findViewById(R.id.homeButton);
+        profileButton = findViewById(R.id.profileButton);
 
         selectedDateTime = Calendar.getInstance();
 
-        // Handle back arrow to MainActivity
-        backArrow.setOnClickListener(v -> {
-            Intent intent = new Intent(AddRideActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        backArrow.setOnClickListener(v -> navigateToMainActivity());
+        homeButton.setOnClickListener(v -> navigateToMainActivity());
+        profileButton.setOnClickListener(v -> navigateToProfileActivity());
 
-        buttonPickDate.setOnClickListener(v -> {
-            Calendar now = Calendar.getInstance();
-            DatePickerDialog datePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-                selectedDateTime.set(Calendar.YEAR, year);
-                selectedDateTime.set(Calendar.MONTH, month);
-                selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateDateTimeLabels();
-            }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-            datePicker.getDatePicker().setMinDate(now.getTimeInMillis());
-            datePicker.show();
-        });
+        buttonPickDate.setOnClickListener(v -> showDatePickerDialog());
+        buttonPickTime.setOnClickListener(v -> showTimePickerDialog());
 
-        buttonPickTime.setOnClickListener(v -> {
-            Calendar now = Calendar.getInstance();
-            TimePickerDialog timePicker = new TimePickerDialog(this, (view, hourOfDay, minute) -> {
-                selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                selectedDateTime.set(Calendar.MINUTE, minute);
-                selectedDateTime.set(Calendar.SECOND, 0);
-                selectedDateTime.set(Calendar.MILLISECOND, 0);
-                updateDateTimeLabels();
-            }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false);
-            timePicker.show();
-        });
+        buttonSubmit.setOnClickListener(v -> handleSubmit());
+    }
 
-        buttonSubmit.setOnClickListener(v -> {
-            if (!isDateTimeValid()) {
-                textViewValidation.setText("Pick a time at least 15 minutes in the future!");
-                textViewValidation.setVisibility(TextView.VISIBLE);
-                return;
-            }
-            textViewValidation.setVisibility(TextView.GONE);
+    private void navigateToMainActivity() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
 
-            String from = editTextFrom.getText().toString().trim();
-            String to = editTextTo.getText().toString().trim();
-            String date = textViewDate.getText().toString();
-            String time = textViewTime.getText().toString();
-            int selectedTypeId = radioGroupType.getCheckedRadioButtonId();
+    private void navigateToProfileActivity() {
+        startActivity(new Intent(this, ProfileActivity.class));
+        finish();
+    }
 
-            FirebaseUser user = mAuth.getCurrentUser();
-            if (user == null) {
-                Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    private void showDatePickerDialog() {
+        Calendar now = Calendar.getInstance();
+        DatePickerDialog datePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            selectedDateTime.set(Calendar.YEAR, year);
+            selectedDateTime.set(Calendar.MONTH, month);
+            selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            updateDateTimeLabels();
+        }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        datePicker.getDatePicker().setMinDate(now.getTimeInMillis());
+        datePicker.show();
+    }
 
-            String userId = user.getUid();
-            String driverId = ""; // initially empty
-            boolean accepted = false;
-            boolean riderCompleted = false;
-            boolean driverCompleted = false;
-
-            Ride newRide = new Ride(date, time, from, to, userId, driverId, accepted, riderCompleted, driverCompleted);
-
-            if (selectedTypeId == R.id.radioOffer) {
-                new StoreRideOfferTask().execute(newRide);
-            } else if (selectedTypeId == R.id.radioRequest) {
-                new StoreRideRequestTask().execute(newRide);
-            } else {
-                Toast.makeText(this, "Please select ride type", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Toast.makeText(this, "Ride added!", Toast.LENGTH_SHORT).show();
-            finish();
-        });
-
-        ImageView homeButton = findViewById(R.id.homeButton);
-        ImageView profileButton = findViewById(R.id.profileButton);
-
-        homeButton.setOnClickListener(v -> {
-            startActivity(new Intent(AddRideActivity.this, MainActivity.class));
-            finish();
-        });
-
-        profileButton.setOnClickListener(v -> {
-            startActivity(new Intent(AddRideActivity.this, ProfileActivity.class));
-            finish();
-        });
+    private void showTimePickerDialog() {
+        Calendar now = Calendar.getInstance();
+        TimePickerDialog timePicker = new TimePickerDialog(this, (view, hourOfDay, minute) -> {
+            selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            selectedDateTime.set(Calendar.MINUTE, minute);
+            selectedDateTime.set(Calendar.SECOND, 0);
+            selectedDateTime.set(Calendar.MILLISECOND, 0);
+            updateDateTimeLabels();
+        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false);
+        timePicker.show();
     }
 
     private void updateDateTimeLabels() {
@@ -134,6 +94,56 @@ public class AddRideActivity extends AppCompatActivity {
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.US);
         textViewDate.setText(dateFormat.format(selectedDateTime.getTime()));
         textViewTime.setText(timeFormat.format(selectedDateTime.getTime()));
+    }
+
+    private void handleSubmit() {
+        if (!isDateTimeValid()) {
+            textViewValidation.setText("Pick a time at least 15 minutes in the future!");
+            textViewValidation.setVisibility(TextView.VISIBLE);
+            return;
+        }
+        textViewValidation.setVisibility(TextView.GONE);
+
+        String from = editTextFrom.getText().toString().trim();
+        String to = editTextTo.getText().toString().trim();
+        String date = textViewDate.getText().toString();
+        String time = textViewTime.getText().toString();
+        int selectedTypeId = radioGroupType.getCheckedRadioButtonId();
+
+        if (from.isEmpty() || to.isEmpty() || selectedTypeId == -1) {
+            Toast.makeText(this, "Please fill in all fields and select a ride type", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        String driverId = null;
+        String riderId = null;
+        boolean accepted = false;
+        boolean riderCompleted = false;
+        boolean driverCompleted = false;
+
+        if (selectedTypeId == R.id.radioOffer) {
+            driverId = userId;
+        } else if (selectedTypeId == R.id.radioRequest) {
+            riderId = userId;
+        }
+
+        Ride newRide = new Ride(date, time, from, to, userId, driverId, riderId, accepted, riderCompleted, driverCompleted);
+
+        if (selectedTypeId == R.id.radioOffer) {
+            new StoreRideOfferTask().execute(newRide);
+        } else if (selectedTypeId == R.id.radioRequest) {
+            new StoreRideRequestTask().execute(newRide);
+        }
+
+        Toast.makeText(this, "Ride added!", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     private boolean isDateTimeValid() {

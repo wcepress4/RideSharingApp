@@ -26,6 +26,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final int ADD_RIDE_REQUEST_CODE = 1001;
+    private static final int EDIT_RIDE_REQUEST_CODE = 1002;  // For handling edit rides
 
     private FirebaseAuth mAuth;
     private TabLayout tabLayout;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         userGreeting = findViewById(R.id.userGreeting);
         userPoints = findViewById(R.id.userPoints);
 
-        fetchUserInfo(); // 🔥 Fetch and display user name + points
+        fetchUserInfo();
 
         tabLayout = findViewById(R.id.tabLayout);
         recyclerView = findViewById(R.id.recyclerView);
@@ -80,9 +81,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, AddRideActivity.class);
             startActivityForResult(intent, ADD_RIDE_REQUEST_CODE);
         });
-        findViewById(R.id.profileButton).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class))
-        );
+        findViewById(R.id.profileButton).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
         loadRideDetails();
     }
@@ -112,14 +111,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ADD_RIDE_REQUEST_CODE && resultCode == RESULT_OK) {
-            loadRideDetails();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == ADD_RIDE_REQUEST_CODE || requestCode == EDIT_RIDE_REQUEST_CODE) {
+                loadRideDetails(); // Reload the rides after either adding or editing a ride
+            }
         }
     }
 
     private void loadRideDetails() {
+        // Determine the filter type based on the tab
         RetrieveFilteredRidesTask.FilterType filterType = RetrieveFilteredRidesTask.FilterType.ALL_AVAILABLE;
         boolean isOffer = currentTab.equals("Ride Offers");
 
@@ -129,22 +131,36 @@ public class MainActivity extends AppCompatActivity {
                 currentUserId,
                 isOffer
         );
-        task.fetchData();
+        task.fetchData(); // Fetch updated data
     }
-
-    // inside MainActivity.java
 
     private void displayRides(List<Ride> rideList) {
         boolean isOfferTab = currentTab.equals("Ride Offers");
 
         rideAdapter = new RideAdapter(
                 rideList,
-                ride -> Toast.makeText(MainActivity.this, "Accepted ride with Rider ID: " + ride.getRiderId(), Toast.LENGTH_SHORT).show(),
+                ride -> {
+                    if (!ride.getAccepted()) {
+                        // Accept the ride: mark as accepted and update it in Firebase
+                        ride.setAccepted(true);
+
+                        if (isOfferTab) {
+                            new UpdateRideOfferTask(ride.getRideKey()).execute(ride);
+                        } else {
+                            new UpdateRideRequestTask(ride.getRideKey()).execute(ride);
+                        }
+
+                        Toast.makeText(MainActivity.this, "Ride accepted!", Toast.LENGTH_SHORT).show();
+                        loadRideDetails();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Ride already accepted.", Toast.LENGTH_SHORT).show();
+                    }
+                },
                 currentUserId,
-                isOfferTab
+                isOfferTab,
+                false  // <<<< HERE: isAcceptedRidePage is FALSE in MainActivity
         );
 
         recyclerView.setAdapter(rideAdapter);
     }
-
 }
