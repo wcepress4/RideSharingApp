@@ -26,7 +26,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final int ADD_RIDE_REQUEST_CODE = 1001;
-    private static final int EDIT_RIDE_REQUEST_CODE = 1002;  // For handling edit rides
+    private static final int EDIT_RIDE_REQUEST_CODE = 1002;
 
     private FirebaseAuth mAuth;
     private TabLayout tabLayout;
@@ -115,13 +115,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == ADD_RIDE_REQUEST_CODE || requestCode == EDIT_RIDE_REQUEST_CODE) {
-                loadRideDetails(); // Reload the rides after either adding or editing a ride
+                loadRideDetails();
             }
         }
     }
 
     private void loadRideDetails() {
-        // Determine the filter type based on the tab
         RetrieveFilteredRidesTask.FilterType filterType = RetrieveFilteredRidesTask.FilterType.ALL_AVAILABLE;
         boolean isOffer = currentTab.equals("Ride Offers");
 
@@ -131,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 currentUserId,
                 isOffer
         );
-        task.fetchData(); // Fetch updated data
+        task.fetchData();
     }
 
     private void displayRides(List<Ride> rideList) {
@@ -141,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 rideList,
                 ride -> {
                     if (!ride.getAccepted()) {
-                        // Accept the ride: mark as accepted and update it in Firebase
+
                         ride.setAccepted(true);
 
                         if (isOfferTab) {
