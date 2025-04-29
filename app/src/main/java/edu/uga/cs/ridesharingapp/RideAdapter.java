@@ -1,6 +1,7 @@
 package edu.uga.cs.ridesharingapp;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -107,8 +111,31 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
                 holder.addEditButton.setText("Accept Ride");
 
                 holder.addEditButton.setOnClickListener(v -> {
+                    Log.d("RideAdapter", "THIS USER ACCEPTED -> " + currentUserId);
+
+                    DatabaseReference dbRef;
+                    if (isOfferTab) {
+                        dbRef = FirebaseDatabase.getInstance().getReference("rideOffers").child(ride.getRideKey());
+                        dbRef.child("riderId").setValue(currentUserId);
+                    } else {
+                        dbRef = FirebaseDatabase.getInstance().getReference("rideRequests").child(ride.getRideKey());
+                        dbRef.child("driverId").setValue(currentUserId);
+                    }
+
+                    dbRef.child("accepted").setValue(true);
+
+                    // Optional: update the local object too
+                    ride.setAccepted(true);
+                    if (isOfferTab) {
+                        ride.setRiderId(currentUserId);
+                    } else {
+                        ride.setDriverId(currentUserId);
+                    }
+
                     onAcceptClickListener.onAcceptClick(ride);
                 });
+
+
             }
         }
     }
