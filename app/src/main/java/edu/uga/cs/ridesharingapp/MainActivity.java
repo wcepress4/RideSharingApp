@@ -151,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         Toast.makeText(MainActivity.this, "Ride accepted!", Toast.LENGTH_SHORT).show();
-                        loadRideDetails();
+                        Intent intent = new Intent(MainActivity.this, AcceptedRideActivity.class);
+                        intent.putExtra("currentUserId", currentUserId);  // Pass current user id if needed
+                        startActivity(intent);
                     } else {
                         Toast.makeText(MainActivity.this, "Ride already accepted.", Toast.LENGTH_SHORT).show();
                     }
