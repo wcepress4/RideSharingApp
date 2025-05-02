@@ -24,13 +24,12 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
     private OnAcceptClickListener onAcceptClickListener;
     private String currentUserId;
     private boolean isOfferTab;
-    private boolean isAcceptedRidePage; // NEW
+    private boolean isAcceptedRidePage;
 
     public interface OnAcceptClickListener {
         void onAcceptClick(Ride ride);
     }
 
-    // Updated constructor
     public RideAdapter(List<Ride> rideList, OnAcceptClickListener listener, String currentUserId, boolean isOfferTab, boolean isAcceptedRidePage) {
         this.rideList = rideList;
         this.onAcceptClickListener = listener;
@@ -53,7 +52,6 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
         holder.whenDetails.setText(ride.getDate() + " · " + ride.getTime());
         holder.whereDetails.setText(ride.getFromLocation() + " ➔ " + ride.getToLocation());
 
-        // Who is involved
         if (isOfferTab) {
             String driverId = ride.getDriverId();
             if (driverId != null && !driverId.isEmpty()) {
@@ -71,15 +69,12 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
         }
 
         if (isAcceptedRidePage) {
-            // Accepted Rides Page: Only show "Complete Ride"
             holder.settingsButton.setVisibility(View.GONE);
             holder.addEditButton.setText("Complete Ride");
             holder.addEditButton.setOnClickListener(v -> {
                 onAcceptClickListener.onAcceptClick(ride);
             });
-        }
-        else {
-            // Normal Offer or Request tab
+        } else {
             boolean isUserCreated = isOfferTab
                     ? currentUserId.equals(ride.getDriverId())
                     : currentUserId.equals(ride.getRiderId());
@@ -104,9 +99,9 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
                     }
                     rideList.remove(position);
                     notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, rideList.size());
                 });
-            }
-            else {
+            } else {
                 holder.settingsButton.setVisibility(View.GONE);
                 holder.addEditButton.setText("Accept Ride");
 
@@ -123,9 +118,8 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
                     }
 
                     dbRef.child("accepted").setValue(true);
-
-                    // Optional: update the local object too
                     ride.setAccepted(true);
+
                     if (isOfferTab) {
                         ride.setRiderId(currentUserId);
                     } else {
@@ -134,8 +128,6 @@ public class RideAdapter extends RecyclerView.Adapter<RideAdapter.RideViewHolder
 
                     onAcceptClickListener.onAcceptClick(ride);
                 });
-
-
             }
         }
     }

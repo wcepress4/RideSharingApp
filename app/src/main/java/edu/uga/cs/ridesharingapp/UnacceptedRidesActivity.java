@@ -3,7 +3,10 @@ package edu.uga.cs.ridesharingapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +32,7 @@ public class UnacceptedRidesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RideAdapter rideAdapter;
     private List<Ride> unacceptedRides = new ArrayList<>();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy h:mm a", Locale.getDefault()); // Use single h for 12-hour
     private FirebaseUser currentUser;
     private ImageView backArrow;
     private TabLayout tabLayout;
@@ -48,30 +51,32 @@ public class UnacceptedRidesActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewUnaccepted);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialize the RideAdapter with the correct tab info (Ride Offers tab)
-        rideAdapter = new RideAdapter(unacceptedRides, ride -> {}, currentUser.getUid(), true, false);
+        rideAdapter = new RideAdapter(unacceptedRides, ride -> {
+            Intent intent = new Intent(UnacceptedRidesActivity.this, EditRideActivity.class);
+            intent.putExtra("ride", ride);
+            startActivityForResult(intent, 1);
+        }, currentUser.getUid(), true, false);
         recyclerView.setAdapter(rideAdapter);
 
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.getTabAt(0).select();  // Default to Ride Offers tab
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                // Set whether we're showing offers or requests based on the tab selected
                 showingOffers = tab.getPosition() == 0;
-                // Update the adapter to reflect the correct tab
                 updateRideAdapter();
-                fetchUnacceptedRides();  // Fetch rides again based on the selected tab
+                fetchUnacceptedRides();
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) { }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) { }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        fetchUnacceptedRides();  // Initial fetch when activity is first created
+        fetchUnacceptedRides();  // Initial fetch
     }
 
     private void navigateToProfileActivity() {
@@ -80,28 +85,61 @@ public class UnacceptedRidesActivity extends AppCompatActivity {
     }
 
     private void fetchUnacceptedRides() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String currentUserId = currentUser.getUid();
         unacceptedRides.clear();
-        DatabaseReference databaseRef = showingOffers
-                ? FirebaseDatabase.getInstance().getReference("rideOffers")
-                : FirebaseDatabase.getInstance().getReference("rideRequests");
 
-        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
-                    Ride ride = rideSnapshot.getValue(Ride.class);
-                    if (ride != null && !ride.getAccepted() && isUserRide(ride) && isPastDate(ride)) {
-                        unacceptedRides.add(ride);
+        if (showingOffers) {
+            // Show only ride offers created by current user (driver)
+            DatabaseReference offerRef = FirebaseDatabase.getInstance().getReference("rideOffers");
+            offerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
+                        Ride ride = rideSnapshot.getValue(Ride.class);
+                        if (ride != null && !ride.getAccepted() && currentUserId.equals(ride.getDriverId())) {
+                            ride.setRideKey(rideSnapshot.getKey());
+                            unacceptedRides.add(ride);
+                        }
                     }
+                    rideAdapter.notifyDataSetChanged();
                 }
-                // Notify the adapter that the data has changed
-                rideAdapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(DatabaseError error) { }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(UnacceptedRidesActivity.this, "Failed to load ride offers.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // Show only ride requests created by current user (rider)
+            DatabaseReference requestRef = FirebaseDatabase.getInstance().getReference("rideRequests");
+            requestRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot rideSnapshot : snapshot.getChildren()) {
+                        Ride ride = rideSnapshot.getValue(Ride.class);
+                        if (ride != null && !ride.getAccepted() && currentUserId.equals(ride.getRiderId())) {
+                            ride.setRideKey(rideSnapshot.getKey());
+                            unacceptedRides.add(ride);
+                        }
+                    }
+                    rideAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(UnacceptedRidesActivity.this, "Failed to load ride requests.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
+
+
 
     private boolean isPastDate(Ride ride) {
         try {
@@ -113,12 +151,26 @@ public class UnacceptedRidesActivity extends AppCompatActivity {
     }
 
     private boolean isUserRide(Ride ride) {
-        return ride.getUserId() != null && ride.getUserId().equals(currentUser.getUid());
+        String uid = currentUser.getUid();
+        return showingOffers
+                ? uid.equals(ride.getDriverId())
+                : uid.equals(ride.getRiderId());
     }
 
     private void updateRideAdapter() {
-        // Reinitialize the adapter with the correct tab value to reflect the changes
-        rideAdapter = new RideAdapter(unacceptedRides, ride -> {}, currentUser.getUid(), showingOffers, false);
+        rideAdapter = new RideAdapter(unacceptedRides, ride -> {
+            Intent intent = new Intent(UnacceptedRidesActivity.this, EditRideActivity.class);
+            intent.putExtra("ride", ride);
+            startActivityForResult(intent, 1);
+        }, currentUser.getUid(), showingOffers, false);
         recyclerView.setAdapter(rideAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            fetchUnacceptedRides();
+        }
     }
 }

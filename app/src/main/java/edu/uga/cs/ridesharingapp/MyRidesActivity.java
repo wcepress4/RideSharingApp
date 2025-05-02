@@ -1,12 +1,15 @@
 // MyRidesActivity.java
 package edu.uga.cs.ridesharingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
@@ -133,15 +136,49 @@ public class MyRidesActivity extends AppCompatActivity {
         } else {
             confirmRideButton.setOnClickListener(v -> {
                 DatabaseReference rideRef = FirebaseDatabase.getInstance().getReference(rideType).child(rideId);
+
+                // Update current user's completion status
                 if (isDriver) {
                     rideRef.child("driverCompleted").setValue(true);
                 } else {
                     rideRef.child("riderCompleted").setValue(true);
                 }
+
+                // Disable the button and update UI
                 confirmRideButton.setEnabled(false);
                 confirmRideButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 confirmRideButton.setText(isDriver ? "Waiting for Rider" : "Waiting for Driver");
                 acceptedDetails.setText("Waiting for Confirmation (" + (completedCount + 1) + "/2)");
+
+                // ✅ Check if both have completed, and update points if so
+                rideRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Ride updatedRide = snapshot.getValue(Ride.class);
+                        if (updatedRide != null &&
+                                Boolean.TRUE.equals(updatedRide.getDriverCompleted()) &&
+                                Boolean.TRUE.equals(updatedRide.getRiderCompleted())) {
+
+                            // Prevent duplicate point updates (optional: add a `pointsUpdated` flag to DB if needed)
+
+                            // ✅ Run UpdatePointsTask
+                            new UpdatePointsTask(MyRidesActivity.this,
+                                    updatedRide.getRiderId(),
+                                    updatedRide.getDriverId()).execute();
+
+                            // Optional: remove card from layout
+                            cardContainer.removeView(cardView);
+
+                            // ✅ Navigate to RidesHistoryActivity
+                            Intent intent = new Intent(MyRidesActivity.this, RidesHistoryActivity.class);
+                            startActivity(intent);
+                            finish(); // Close current activity to prevent coming back with back button
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) { }
+                });
             });
         }
 
